@@ -14,6 +14,10 @@ const roommateSchema = new mongoose.Schema({
     enum: ["leader", "user"],
     default: "user",
   },
+  addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Roommate",
+  },
   pendingAmount: {
     type: Number,
     default: 0,

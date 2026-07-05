@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import RoommateAdmin from "./pages/RoommateAdmin";
@@ -63,21 +64,30 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check if user is already logged in
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      axios.defaults.headers.common["x-user-id"] = parsedUser.id;
+      axios.defaults.headers.common["x-user-role"] = parsedUser.role;
+    } else {
+      delete axios.defaults.headers.common["x-user-id"];
+      delete axios.defaults.headers.common["x-user-role"];
     }
   }, []);
 
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
+    axios.defaults.headers.common["x-user-id"] = userData.id;
+    axios.defaults.headers.common["x-user-role"] = userData.role;
   };
 
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    delete axios.defaults.headers.common["x-user-id"];
+    delete axios.defaults.headers.common["x-user-role"];
   };
 
   if (!user) {

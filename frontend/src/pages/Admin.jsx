@@ -11,7 +11,7 @@ const API_BASE = isLocal
   ? `http://${window.location.hostname}:5000`
   : "https://roommate-expense-tracker-tmx2.onrender.com";
 
-function Admin() {
+function Admin({ user }) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState("");
@@ -70,6 +70,7 @@ function Admin() {
           onChange={(e) => setPaidBy(e.target.value)}
         >
           <option value="">Choose a roommate...</option>
+          <option value={user.name}>{user.name} (Leader)</option>
           {roommates.map((roommate) => (
             <option
               key={roommate._id}

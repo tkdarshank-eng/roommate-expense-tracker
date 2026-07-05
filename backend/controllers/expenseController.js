@@ -12,17 +12,40 @@ const addExpense = async (req, res) => {
       return res.status(400).json({ message: "Expense amount must be a valid positive number" });
     }
 
-    const expense = new Expense(req.body);
+    const leaderId = req.headers["x-user-id"];
+    const userRole = req.headers["x-user-role"];
+    if (!leaderId) {
+      return res.status(400).json({ message: "User ID is required in headers" });
+    }
+
+    let leader = null;
+    if (userRole === "leader") {
+      leader = await Roommate.findById(leaderId);
+    } else {
+      const roommate = await Roommate.findById(leaderId);
+      if (roommate) {
+        leader = await Roommate.findById(roommate.addedBy);
+      }
+    }
+
+    if (!leader) {
+      return res.status(400).json({ message: "No leader found associated with this user" });
+    }
+
+    const expense = new Expense({
+      ...req.body,
+      addedBy: leader._id,
+    });
 
     const savedExpense = await expense.save();
 
-    if (paidBy === "Darshan") {
-      const roommates = await Roommate.find();
+    if (paidBy === leader.name) {
+      const roommates = await Roommate.find({ addedBy: leader._id });
       const shareAmount = roommates.length > 0 ? expenseAmount / roommates.length : 0;
 
       if (shareAmount > 0) {
         await Roommate.updateMany(
-          { name: { $ne: "Darshan" } },
+          { addedBy: leader._id },
           { $inc: { pendingAmount: shareAmount } }
         );
       }
@@ -37,7 +60,22 @@ const addExpense = async (req, res) => {
 // Get All Expenses
 const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find();
+    const userId = req.headers["x-user-id"];
+    const userRole = req.headers["x-user-role"];
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required in headers" });
+    }
+
+    let leaderId = userId;
+    if (userRole === "user") {
+      const roommate = await Roommate.findById(userId);
+      if (roommate) {
+        leaderId = roommate.addedBy;
+      }
+    }
+
+    const expenses = await Expense.find({ addedBy: leaderId });
 
     res.status(200).json(expenses);
   } catch (error) {
@@ -64,14 +102,21 @@ const deleteExpense = async (req, res) => {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    // Adjust roommate pending amounts if the deleted expense was paid by Darshan
-    if (expense.paidBy === "Darshan") {
-      const roommates = await Roommate.find();
+    const leaderId = req.headers["x-user-id"];
+    const userRole = req.headers["x-user-role"];
+
+    let leader = null;
+    if (userRole === "leader") {
+      leader = await Roommate.findById(leaderId);
+    }
+
+    // Adjust roommate pending amounts if the deleted expense was paid by the leader
+    if (leader && expense.paidBy === leader.name) {
+      const roommates = await Roommate.find({ addedBy: leader._id });
       const shareAmount = roommates.length > 0 ? expense.amount / roommates.length : 0;
 
       if (shareAmount > 0) {
-        const allRoommates = await Roommate.find({ name: { $ne: "Darshan" } });
-        for (const roommate of allRoommates) {
+        for (const roommate of roommates) {
           const newAmount = Math.max(0, (roommate.pendingAmount || 0) - shareAmount);
           roommate.pendingAmount = newAmount;
           await roommate.save();

@@ -1,10 +1,18 @@
-
 const Roommate = require("../models/Roommate");
 
 const addRoommate = async (req, res) => {
   try {
+    const leaderId = req.headers["x-user-id"];
+    if (!leaderId) {
+      return res.status(400).json({ message: "Leader ID is required in headers" });
+    }
+
     console.log("Adding roommate with data:", req.body);
-    const roommate = new Roommate(req.body);
+    const roommate = new Roommate({
+      ...req.body,
+      addedBy: leaderId,
+      role: "user",
+    });
 
     const savedRoommate = await roommate.save();
     console.log("Roommate saved successfully:", savedRoommate);
@@ -18,7 +26,22 @@ const addRoommate = async (req, res) => {
 
 const getRoommates = async (req, res) => {
   try {
-    const roommates = await Roommate.find();
+    const userId = req.headers["x-user-id"];
+    const userRole = req.headers["x-user-role"];
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required in headers" });
+    }
+
+    let leaderId = userId;
+    if (userRole === "user") {
+      const roommate = await Roommate.findById(userId);
+      if (roommate) {
+        leaderId = roommate.addedBy;
+      }
+    }
+
+    const roommates = await Roommate.find({ addedBy: leaderId });
 
     res.status(200).json(roommates);
   } catch (error) {

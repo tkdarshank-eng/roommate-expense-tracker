@@ -13,6 +13,10 @@ const expenseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Roommate",
+  },
   date: {
     type: Date,
     default: Date.now,
