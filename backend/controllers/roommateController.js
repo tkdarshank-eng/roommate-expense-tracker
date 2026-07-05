@@ -61,6 +61,7 @@ const updatePendingAmount = async (req, res) => {
     const updateFields = { pendingAmount: amount };
     if (amount === 0) {
       updateFields.history = [];
+      updateFields.hasPaidRequest = false;
     }
 
     const roommate = await Roommate.findByIdAndUpdate(
@@ -205,6 +206,24 @@ const updateRoommatePassword = async (req, res) => {
   }
 };
 
+const submitPaymentRequest = async (req, res) => {
+  try {
+    const roommate = await Roommate.findByIdAndUpdate(
+      req.params.id,
+      { hasPaidRequest: true },
+      { new: true }
+    );
+
+    if (!roommate) {
+      return res.status(404).json({ message: "Roommate not found" });
+    }
+
+    res.status(200).json(roommate);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   addRoommate,
   getRoommates,
@@ -214,4 +233,5 @@ module.exports = {
   registerLeader,
   loginUser,
   updateRoommatePassword,
+  submitPaymentRequest,
 };

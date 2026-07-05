@@ -23,6 +23,10 @@ const roommateSchema = new mongoose.Schema({
     default: 0,
     min: 0,
   },
+  hasPaidRequest: {
+    type: Boolean,
+    default: false,
+  },
   history: [
     {
       title: { type: String, required: true },

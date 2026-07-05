@@ -177,6 +177,19 @@ function RoommateAdmin() {
     }
   };
 
+  const handleApprovePayment = async (roommateId, roommateName) => {
+    try {
+      await axios.patch(`${API_BASE}/api/roommates/${roommateId}/pending-amount`, {
+        pendingAmount: 0,
+      });
+      alert(`✅ Approved payment for ${roommateName}! Pending amount reset to 0.`);
+      fetchRoommates();
+    } catch (error) {
+      console.error(error);
+      alert("Error approving payment: " + (error.response?.data?.message || error.message));
+    }
+  };
+
   const handleDeleteRoommate = async (roommateId, roommateName) => {
     if (!window.confirm(`Delete ${roommateName} from roommates?`)) {
       return;
@@ -274,6 +287,43 @@ function RoommateAdmin() {
                   </button>
                 </div>
               </div>
+
+              {roommate.hasPaidRequest && (
+                <div
+                  style={{
+                    background: "rgba(245, 87, 108, 0.15)",
+                    border: "1px solid rgba(245, 87, 108, 0.3)",
+                    padding: "1rem",
+                    borderRadius: "10px",
+                    marginBottom: "1rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "1rem",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <span style={{ color: "#f5576c", fontWeight: "600", fontSize: "0.9rem" }}>
+                    ⚠️ {roommate.name} has submitted a payment request!
+                  </span>
+                  <button
+                    onClick={() => handleApprovePayment(roommate._id, roommate.name)}
+                    style={{
+                      width: "auto",
+                      padding: "0.5rem 1rem",
+                      background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                      border: "none",
+                      color: "white",
+                      borderRadius: "6px",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Approve Payment (Reset to 0)
+                  </button>
+                </div>
+              )}
 
               <div
                 style={{

@@ -118,6 +118,8 @@ function Expenses({ user }) {
         <>
           {(() => {
             const myPendingAmount = getMyPendingFromDB();
+            const currentRoommate = roommates.find((r) => r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
+            const isPaymentPending = currentRoommate?.hasPaidRequest;
             return (
               <div
                 style={{
@@ -190,17 +192,33 @@ function Expenses({ user }) {
                   <button
                     style={{
                       marginTop: "15px",
-                      background: "#16a34a",
+                      background: isPaymentPending ? "#777" : "#16a34a",
                       color: "white",
                       border: "none",
                       padding: "10px 20px",
                       borderRadius: "8px",
-                      cursor: "pointer",
+                      cursor: isPaymentPending ? "not-allowed" : "pointer",
                       width: "80%",
+                      fontWeight: "700",
                     }}
-                    onClick={() => alert("Payment request sent to Leader")}
+                    onClick={async () => {
+                      if (isPaymentPending) return;
+                      try {
+                        if (!currentRoommate) {
+                          alert("Error: Roommate details not found");
+                          return;
+                        }
+                        await axios.patch(`${API_BASE}/api/roommates/${currentRoommate._id}/payment-request`);
+                        alert("✅ Payment request sent to Leader! Awaiting approval.");
+                        fetchRoommates();
+                      } catch (err) {
+                        console.error(err);
+                        alert("Failed to submit request: " + (err.response?.data?.message || err.message));
+                      }
+                    }}
+                    disabled={isPaymentPending}
                   >
-                    I've Paid
+                    {isPaymentPending ? "⏳ Verification Pending" : "I've Paid"}
                   </button>
                 </div>
               </div>
