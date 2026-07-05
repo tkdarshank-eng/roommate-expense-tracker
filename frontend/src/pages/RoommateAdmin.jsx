@@ -149,8 +149,8 @@ function RoommateAdmin() {
       return;
     }
 
-    if (!Number.isFinite(amount) || amount <= 0) {
-      alert("Please enter a valid additional amount");
+    if (!Number.isFinite(amount) || amount === 0) {
+      alert("Please enter a valid non-zero additional amount");
       return;
     }
 
@@ -160,7 +160,8 @@ function RoommateAdmin() {
         title,
       });
 
-      alert(`Added Rs ${amount.toFixed(2)} to ${roommateName}'s pending amount`);
+      const actionWord = amount > 0 ? "Added" : "Subtracted";
+      alert(`${actionWord} Rs ${Math.abs(amount).toFixed(2)} to ${roommateName}'s pending amount`);
       setAdditionalAmounts((currentAmounts) => ({
         ...currentAmounts,
         [roommateId]: "",
@@ -398,7 +399,6 @@ function RoommateAdmin() {
                 />
                 <input
                   type="number"
-                  min="0"
                   step="0.01"
                   placeholder="Additional amount"
                   value={additionalAmounts[roommate._id] ?? ""}

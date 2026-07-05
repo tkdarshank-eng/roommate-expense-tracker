@@ -85,28 +85,30 @@ const addPendingAmount = async (req, res) => {
     const { amount, title } = req.body;
     const extraAmount = Number(amount);
 
-    if (!Number.isFinite(extraAmount) || extraAmount <= 0) {
-      return res.status(400).json({ message: "Additional amount must be a valid positive number" });
+    if (!Number.isFinite(extraAmount) || extraAmount === 0) {
+      return res.status(400).json({ message: "Additional amount must be a valid non-zero number" });
     }
 
     if (!title || !title.trim()) {
       return res.status(400).json({ message: "Title is required for adding amount" });
     }
 
-    const roommate = await Roommate.findByIdAndUpdate(
-      req.params.id,
-      {
-        $inc: { pendingAmount: extraAmount },
-        $push: { history: { title: title.trim(), amount: extraAmount } },
-      },
-      { new: true, runValidators: true }
-    );
-
+    const roommate = await Roommate.findById(req.params.id);
     if (!roommate) {
       return res.status(404).json({ message: "Roommate not found" });
     }
 
-    res.status(200).json(roommate);
+    const newPendingAmount = Math.max(0, (roommate.pendingAmount || 0) + extraAmount);
+    roommate.pendingAmount = newPendingAmount;
+    roommate.history.push({ title: title.trim(), amount: extraAmount });
+
+    if (newPendingAmount === 0) {
+      roommate.history = [];
+      roommate.hasPaidRequest = false;
+    }
+
+    const savedRoommate = await roommate.save();
+    res.status(200).json(savedRoommate);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
