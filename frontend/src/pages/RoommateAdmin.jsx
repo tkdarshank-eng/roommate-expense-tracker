@@ -1,0 +1,330 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+const API_BASE = `http://${window.location.hostname}:5000`;
+
+function RoommateAdmin() {
+  const [roommates, setRoommates] = useState([]);
+  const [newRoommate, setNewRoommate] = useState("");
+  const [pendingAmounts, setPendingAmounts] = useState({});
+  const [additionalAmounts, setAdditionalAmounts] = useState({});
+  const [additionalTitles, setAdditionalTitles] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  const fetchRoommates = () => {
+    axios
+      .get(`${API_BASE}/api/roommates`)
+      .then((res) => {
+        setRoommates(res.data);
+        setPendingAmounts(
+          res.data.reduce((amounts, roommate) => {
+            amounts[roommate._id] = roommate.pendingAmount ?? 0;
+            return amounts;
+          }, {})
+        );
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchRoommates();
+  }, []);
+
+  const handleAddRoommate = async () => {
+    if (!newRoommate.trim()) {
+      alert("Please enter a roommate name");
+      return;
+    }
+
+    try {
+      await axios.post(`${API_BASE}/api/roommates`, {
+        name: newRoommate,
+        pendingAmount: 0,
+      });
+
+      alert("Roommate added successfully!");
+      setNewRoommate("");
+      fetchRoommates();
+    } catch (error) {
+      console.error("Error details:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Error adding roommate";
+      alert("Error: " + errorMsg);
+    }
+  };
+
+  const handlePendingAmountChange = (roommateId, value) => {
+    setPendingAmounts((currentAmounts) => ({
+      ...currentAmounts,
+      [roommateId]: value,
+    }));
+  };
+
+  const handleAdditionalAmountChange = (roommateId, value) => {
+    setAdditionalAmounts((currentAmounts) => ({
+      ...currentAmounts,
+      [roommateId]: value,
+    }));
+  };
+
+  const handleAdditionalTitleChange = (roommateId, value) => {
+    setAdditionalTitles((currentTitles) => ({
+      ...currentTitles,
+      [roommateId]: value,
+    }));
+  };
+
+  const handleUpdatePendingAmount = async (roommateId, roommateName) => {
+    const amount = Number(pendingAmounts[roommateId]);
+
+    if (!Number.isFinite(amount) || amount < 0) {
+      alert("Please enter a valid pending amount");
+      return;
+    }
+
+    try {
+      await axios.patch(`${API_BASE}/api/roommates/${roommateId}/pending-amount`, {
+        pendingAmount: amount,
+      });
+
+      alert(`Pending amount updated for ${roommateName}`);
+      fetchRoommates();
+    } catch (error) {
+      console.error("Error details:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Error updating pending amount";
+      alert("Error: " + errorMsg);
+    }
+  };
+
+  const handleAddPendingAmount = async (roommateId, roommateName) => {
+    const amount = Number(additionalAmounts[roommateId]);
+    const title = additionalTitles[roommateId] || "";
+
+    if (!title.trim()) {
+      alert("Please enter a title/reason for this amount");
+      return;
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      alert("Please enter a valid additional amount");
+      return;
+    }
+
+    try {
+      await axios.patch(`${API_BASE}/api/roommates/${roommateId}/add-pending-amount`, {
+        amount,
+        title,
+      });
+
+      alert(`Added Rs ${amount.toFixed(2)} to ${roommateName}'s pending amount`);
+      setAdditionalAmounts((currentAmounts) => ({
+        ...currentAmounts,
+        [roommateId]: "",
+      }));
+      setAdditionalTitles((currentTitles) => ({
+        ...currentTitles,
+        [roommateId]: "",
+      }));
+      fetchRoommates();
+    } catch (error) {
+      console.error("Error details:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Error adding pending amount";
+      alert("Error: " + errorMsg);
+    }
+  };
+
+  const handleDeleteRoommate = async (roommateId, roommateName) => {
+    if (!window.confirm(`Delete ${roommateName} from roommates?`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_BASE}/api/roommates/${roommateId}`);
+
+      alert(`${roommateName} deleted successfully`);
+      fetchRoommates();
+    } catch (error) {
+      console.error("Error details:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Error deleting roommate";
+      alert("Error: " + errorMsg);
+    }
+  };
+
+  return (
+    <div className="container">
+      <h1>Manage Roommates</h1>
+
+      <div className="form-group">
+        <label>Add New Roommate</label>
+        <input
+          type="text"
+          placeholder="Enter roommate name"
+          value={newRoommate}
+          onChange={(e) => setNewRoommate(e.target.value)}
+        />
+      </div>
+
+      <button onClick={handleAddRoommate}>Add Roommate</button>
+
+      <h2 style={{ marginTop: "2rem", color: "#667eea" }}>Pending Amounts</h2>
+
+      {loading ? (
+        <p>Loading roommates...</p>
+      ) : roommates.length === 0 ? (
+        <p style={{ color: "#999" }}>No roommates added yet.</p>
+      ) : (
+        <div style={{ marginTop: "1rem" }}>
+          {roommates.map((roommate) => (
+            <div
+              key={roommate._id}
+              style={{
+                padding: "1.5rem",
+                background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
+                border: "1px solid rgba(102, 126, 234, 0.2)",
+                borderRadius: "16px",
+                marginBottom: "1.2rem",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "1rem",
+                  flexWrap: "wrap",
+                  marginBottom: "1rem",
+                }}
+              >
+                <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#fff" }}>{roommate.name}</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <span style={{ color: "#f5576c", fontWeight: "700" }}>
+                    Pending: Rs {Number(roommate.pendingAmount || 0).toFixed(2)}
+                  </span>
+                  <button
+                    onClick={() => handleDeleteRoommate(roommate._id, roommate.name)}
+                    style={{
+                      width: "auto",
+                      padding: "0.5rem 0.75rem",
+                      background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
+                      fontSize: "0.85rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
+                  gap: "0.75rem",
+                  alignItems: "center",
+                }}
+              >
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Pending amount"
+                  value={pendingAmounts[roommate._id] ?? ""}
+                  onChange={(e) => handlePendingAmountChange(roommate._id, e.target.value)}
+                />
+                <button
+                  onClick={() => handleUpdatePendingAmount(roommate._id, roommate.name)}
+                  style={{
+                    width: "auto",
+                    padding: "0.75rem 1rem",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Save Amount
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr auto",
+                  gap: "0.75rem",
+                  alignItems: "center",
+                  marginTop: "0.75rem",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Title / Reason (e.g. Water)"
+                  value={additionalTitles[roommate._id] ?? ""}
+                  onChange={(e) => handleAdditionalTitleChange(roommate._id, e.target.value)}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Additional amount"
+                  value={additionalAmounts[roommate._id] ?? ""}
+                  onChange={(e) => handleAdditionalAmountChange(roommate._id, e.target.value)}
+                />
+                <button
+                  onClick={() => handleAddPendingAmount(roommate._id, roommate.name)}
+                  style={{
+                    width: "auto",
+                    padding: "0.75rem 1rem",
+                    whiteSpace: "nowrap",
+                    background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                  }}
+                >
+                  Add Amount
+                </button>
+              </div>
+
+              {roommate.history && roommate.history.length > 0 && (
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    padding: "1rem",
+                    background: "rgba(20, 20, 35, 0.6)",
+                    border: "1px solid rgba(102, 126, 234, 0.15)",
+                    borderRadius: "10px",
+                    color: "#e0e0e0",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  <strong style={{ display: "block", marginBottom: "0.5rem", color: "#667eea", fontWeight: "600" }}>
+                    Pending Amount Breakdown:
+                  </strong>
+                  <ul style={{ margin: "0", paddingLeft: "1.2rem" }}>
+                    {roommate.history.map((item, idx) => (
+                      <li key={item._id || idx} style={{ marginBottom: "0.4rem" }}>
+                        <span style={{ fontWeight: "600" }}>{item.title}</span>: +₹
+                        {Number(item.amount).toFixed(2)}{" "}
+                        <span style={{ fontSize: "0.75rem", color: "#999" }}>
+                          ({new Date(item.date).toLocaleDateString()})
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default RoommateAdmin;
