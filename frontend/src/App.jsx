@@ -67,6 +67,14 @@ function App() {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
+      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(parsedUser.id);
+      if (!isValidObjectId) {
+        localStorage.removeItem("user");
+        setUser(null);
+        delete axios.defaults.headers.common["x-user-id"];
+        delete axios.defaults.headers.common["x-user-role"];
+        return;
+      }
       setUser(parsedUser);
       axios.defaults.headers.common["x-user-id"] = parsedUser.id;
       axios.defaults.headers.common["x-user-role"] = parsedUser.role;

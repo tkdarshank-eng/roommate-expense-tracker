@@ -1,10 +1,11 @@
 const Roommate = require("../models/Roommate");
+const mongoose = require("mongoose");
 
 const addRoommate = async (req, res) => {
   try {
     const leaderId = req.headers["x-user-id"];
-    if (!leaderId) {
-      return res.status(400).json({ message: "Leader ID is required in headers" });
+    if (!leaderId || !mongoose.Types.ObjectId.isValid(leaderId)) {
+      return res.status(400).json({ message: "Invalid or missing Leader ID in headers" });
     }
 
     console.log("Adding roommate with data:", req.body);
@@ -29,8 +30,8 @@ const getRoommates = async (req, res) => {
     const userId = req.headers["x-user-id"];
     const userRole = req.headers["x-user-role"];
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required in headers" });
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid or missing User ID in headers" });
     }
 
     let leaderId = userId;

@@ -14,8 +14,8 @@ const addExpense = async (req, res) => {
 
     const leaderId = req.headers["x-user-id"];
     const userRole = req.headers["x-user-role"];
-    if (!leaderId) {
-      return res.status(400).json({ message: "User ID is required in headers" });
+    if (!leaderId || !mongoose.Types.ObjectId.isValid(leaderId)) {
+      return res.status(400).json({ message: "Invalid or missing User ID in headers" });
     }
 
     let leader = null;
@@ -63,8 +63,8 @@ const getExpenses = async (req, res) => {
     const userId = req.headers["x-user-id"];
     const userRole = req.headers["x-user-role"];
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required in headers" });
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid or missing User ID in headers" });
     }
 
     let leaderId = userId;
@@ -106,7 +106,7 @@ const deleteExpense = async (req, res) => {
     const userRole = req.headers["x-user-role"];
 
     let leader = null;
-    if (userRole === "leader") {
+    if (userRole === "leader" && leaderId && mongoose.Types.ObjectId.isValid(leaderId)) {
       leader = await Roommate.findById(leaderId);
     }
 
