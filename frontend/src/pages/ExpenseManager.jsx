@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = `http://${window.location.hostname}:5000`;
+const API_BASE = "https://roommate-expense-tracker-tmx2.onrender.com";
 
 function ExpenseManager() {
   const [roommates, setRoommates] = useState([]);

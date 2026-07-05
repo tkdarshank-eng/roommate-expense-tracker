@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import QRCode from "react-qr-code";
 
-const API_BASE = `http://${window.location.hostname}:5000`;
+const API_BASE = "https://roommate-expense-tracker-tmx2.onrender.com";
 
 function Expenses({ user }) {
   const [expenses, setExpenses] = useState([]);
