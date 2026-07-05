@@ -132,9 +132,11 @@ const registerLeader = async (req, res) => {
       return res.status(400).json({ message: "Username and password are required" });
     }
 
-    const existingLeader = await Roommate.findOne({ role: "leader" });
-    if (existingLeader) {
-      return res.status(400).json({ message: "Leader account already exists" });
+    const existingRoommate = await Roommate.findOne({
+      name: { $regex: new RegExp("^" + username.trim() + "$", "i") },
+    });
+    if (existingRoommate) {
+      return res.status(400).json({ message: "Username already taken" });
     }
 
     const leader = new Roommate({
