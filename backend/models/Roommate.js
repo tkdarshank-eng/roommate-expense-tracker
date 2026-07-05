@@ -5,6 +5,15 @@ const roommateSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  password: {
+    type: String,
+    default: "",
+  },
+  role: {
+    type: String,
+    enum: ["leader", "user"],
+    default: "user",
+  },
   pendingAmount: {
     type: Number,
     default: 0,

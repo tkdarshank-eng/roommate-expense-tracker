@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = "https://roommate-expense-tracker-tmx2.onrender.com";
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.startsWith("192.168.") ||
+  window.location.hostname.startsWith("10.");
+
+const API_BASE = isLocal
+  ? `http://${window.location.hostname}:5000`
+  : "https://roommate-expense-tracker-tmx2.onrender.com";
 
 function Admin() {
   const [title, setTitle] = useState("");

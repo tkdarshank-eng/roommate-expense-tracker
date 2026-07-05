@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = "https://roommate-expense-tracker-tmx2.onrender.com";
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.startsWith("192.168.") ||
+  window.location.hostname.startsWith("10.");
+
+const API_BASE = isLocal
+  ? `http://${window.location.hostname}:5000`
+  : "https://roommate-expense-tracker-tmx2.onrender.com";
 
 function RoommateAdmin() {
   const [roommates, setRoommates] = useState([]);
   const [newRoommate, setNewRoommate] = useState("");
+  const [password, setPassword] = useState("");
+  const [newRoommatePasswords, setNewRoommatePasswords] = useState({});
   const [pendingAmounts, setPendingAmounts] = useState({});
   const [additionalAmounts, setAdditionalAmounts] = useState({});
   const [additionalTitles, setAdditionalTitles] = useState({});
@@ -35,19 +45,21 @@ function RoommateAdmin() {
   }, []);
 
   const handleAddRoommate = async () => {
-    if (!newRoommate.trim()) {
-      alert("Please enter a roommate name");
+    if (!newRoommate.trim() || !password.trim()) {
+      alert("Please enter both roommate name and a password");
       return;
     }
 
     try {
       await axios.post(`${API_BASE}/api/roommates`, {
         name: newRoommate,
+        password: password.trim(),
         pendingAmount: 0,
       });
 
       alert("Roommate added successfully!");
       setNewRoommate("");
+      setPassword("");
       fetchRoommates();
     } catch (error) {
       console.error("Error details:", error);
@@ -61,6 +73,35 @@ function RoommateAdmin() {
       ...currentAmounts,
       [roommateId]: value,
     }));
+  };
+
+  const handlePasswordChange = (roommateId, value) => {
+    setNewRoommatePasswords((prev) => ({
+      ...prev,
+      [roommateId]: value,
+    }));
+  };
+
+  const handleUpdatePassword = async (roommateId, roommateName) => {
+    const pass = newRoommatePasswords[roommateId];
+    if (!pass || !pass.trim()) {
+      alert("Please enter a valid password");
+      return;
+    }
+
+    try {
+      await axios.patch(`${API_BASE}/api/roommates/${roommateId}/password`, {
+        password: pass.trim(),
+      });
+      alert(`Password updated successfully for ${roommateName}`);
+      setNewRoommatePasswords((prev) => ({
+        ...prev,
+        [roommateId]: "",
+      }));
+    } catch (error) {
+      console.error(error);
+      alert("Error updating password: " + (error.response?.data?.message || error.message));
+    }
   };
 
   const handleAdditionalAmountChange = (roommateId, value) => {
@@ -164,6 +205,13 @@ function RoommateAdmin() {
           placeholder="Enter roommate name"
           value={newRoommate}
           onChange={(e) => setNewRoommate(e.target.value)}
+          style={{ marginBottom: "1rem" }}
+        />
+        <input
+          type="password"
+          placeholder="Enter password for roommate"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
       </div>
 
@@ -252,6 +300,34 @@ function RoommateAdmin() {
                   }}
                 >
                   Save Amount
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
+                  gap: "0.75rem",
+                  alignItems: "center",
+                  marginTop: "0.75rem",
+                }}
+              >
+                <input
+                  type="password"
+                  placeholder="Set New Password"
+                  value={newRoommatePasswords[roommate._id] ?? ""}
+                  onChange={(e) => handlePasswordChange(roommate._id, e.target.value)}
+                />
+                <button
+                  onClick={() => handleUpdatePassword(roommate._id, roommate.name)}
+                  style={{
+                    width: "auto",
+                    padding: "0.75rem 1rem",
+                    whiteSpace: "nowrap",
+                    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                  }}
+                >
+                  Change Password
                 </button>
               </div>
 
