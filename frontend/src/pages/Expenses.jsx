@@ -152,6 +152,33 @@ function Expenses({ user }) {
                     UPI ID: tkdarshankumar@oksbi
                   </p>
 
+                  <a
+                    href={`upi://pay?pa=tkdarshankumar@oksbi&pn=Darshan&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
+                    onClick={(e) => {
+                      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                      if (!isMobile) {
+                        e.preventDefault();
+                        alert("UPI app links are only supported on mobile devices. Please scan the QR code using your phone to pay!");
+                      }
+                    }}
+                    style={{
+                      display: "inline-block",
+                      marginTop: "10px",
+                      background: "linear-gradient(135deg, #4285F4 0%, #34A853 100%)",
+                      color: "white",
+                      textDecoration: "none",
+                      padding: "10px 20px",
+                      borderRadius: "8px",
+                      fontWeight: "700",
+                      fontSize: "0.9rem",
+                      textAlign: "center",
+                      boxShadow: "0 4px 15px rgba(66, 133, 244, 0.3)",
+                      width: "80%",
+                    }}
+                  >
+                    📱 Pay via Google Pay / UPI App
+                  </a>
+
                   <button
                     style={{
                       marginTop: "15px",
@@ -161,6 +188,7 @@ function Expenses({ user }) {
                       padding: "10px 20px",
                       borderRadius: "8px",
                       cursor: "pointer",
+                      width: "80%",
                     }}
                     onClick={() => alert("Payment request sent to Leader")}
                   >
