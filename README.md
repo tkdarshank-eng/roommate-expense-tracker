@@ -1,18 +1,84 @@
+# 🏠 Roommate Expense Tracker
+
+A modern Full Stack MERN application that helps roommates manage shared expenses efficiently. The application allows a leader to manage expenses and roommates, while other roommates can track pending payments and pay using a QR Code.
+
+---
+
+# 🌐 Live Demo
+
+🔗 https://roommate-expense-tracker-roan.vercel.app
+
+---
+
+# ✨ Features
+
+## 👑 Leader Features
+
+- Create Leader Account
+- Login Authentication
+- Add New Expenses
+- Delete Expenses
+- Manage Roommates
+- Change Roommate Password
+- Update Pending Amounts
+- Add Individual Charges
+- View Complete Expense History
+
+---
+
+## 👤 Roommate Features
+
+- Secure Login
+- View Personal Expenses
+- View Pending Amount
+- QR Code Payment
+- Google Pay / UPI Payment Support
+- Expense History
+- Logout
+
+---
+
+# 🛠 Tech Stack
+
+### Frontend
+
+- React.js
+- React Router
+- Axios
+- CSS3
+
+### Backend
+
+- Node.js
+- Express.js
+
+### Database
+
+- MongoDB Atlas
+- Mongoose
+
+### Deployment
+
+- Vercel (Frontend)
+- Render (Backend)
+
+---
+
 # 📸 Application Screenshots
 
-## 🔐 Login Page
+## 🔐 Leader Login
 
 ![Leader Login](screenshots/leaderLogin.png)
 
-Leader login screen where the admin can securely access the application.
+Leader can securely login to manage expenses and roommates.
 
 ---
 
 ## 👑 Create Leader Account
 
-![Create Leader](screenshots/CreateLogin.png)
+![Create Leader Account](screenshots/CreateLogin.png)
 
-New leaders can register and create their own roommate expense group.
+Create a new leader account for a roommate group.
 
 ---
 
@@ -20,7 +86,7 @@ New leaders can register and create their own roommate expense group.
 
 ![Add Expense](screenshots/addExpense.png)
 
-Leader can add expenses, select who paid, and enter the expense amount.
+Leader can add expenses by entering title, amount and selecting who paid.
 
 ---
 
@@ -28,7 +94,7 @@ Leader can add expenses, select who paid, and enter the expense amount.
 
 ![View Expenses](screenshots/viewExpenses.png)
 
-Displays all recorded expenses with payment details and delete option for the leader.
+Displays all recorded expenses with delete option.
 
 ---
 
@@ -36,15 +102,21 @@ Displays all recorded expenses with payment details and delete option for the le
 
 ![Manage Roommates](screenshots/manageRoommates.png)
 
-Leader can add roommates, change passwords, manage pending balances, and update individual amounts.
+Leader can
+
+- Add roommates
+- Delete roommates
+- Change passwords
+- Manage pending balances
+- Add additional charges
 
 ---
 
-## 💳 Pending Amount
+## 💳 Pending Amount Management
 
 ![Pending Amount](screenshots/pendingAmount.png)
 
-Leader can monitor pending balances for every roommate.
+Leader can monitor and update every roommate's pending balance.
 
 ---
 
@@ -52,7 +124,11 @@ Leader can monitor pending balances for every roommate.
 
 ![Roommate Dashboard](screenshots/nonLeaderPending.png)
 
-Each roommate can view their personal pending amount and expense history.
+Each roommate can
+
+- View pending balance
+- View expense history
+- Track payments
 
 ---
 
@@ -60,4 +136,109 @@ Each roommate can view their personal pending amount and expense history.
 
 ![QR Payment](screenshots/nonLeaderQRCode.png)
 
-Roommates can pay their pending amount instantly by scanning the generated UPI QR code.
+Roommates can instantly pay their pending amount using Google Pay / UPI QR Code.
+
+---
+
+# 📂 Project Structure
+
+```
+roommate-expense-tracker
+│
+├── backend
+│   ├── controllers
+│   ├── models
+│   ├── routes
+│   ├── server.js
+│
+├── frontend
+│   ├── src
+│   ├── pages
+│   ├── components
+│
+├── screenshots
+│
+└── README.md
+```
+
+---
+
+# ⚙ Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/tkdarshank-eng/roommate-expense-tracker.git
+```
+
+---
+
+## Backend Setup
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+# Environment Variables
+
+Create a `.env` file inside the backend folder.
+
+```env
+MONGO_URI=YOUR_MONGODB_CONNECTION_STRING
+PORT=5000
+```
+
+---
+
+# Future Improvements
+
+- Payment Verification
+- Monthly Reports
+- Expense Categories
+- Notifications
+- Email Alerts
+- Charts & Analytics
+- Dark/Light Theme
+- Mobile App
+
+---
+
+# 👨‍💻 Developer
+
+**T K Darshan Kumar**
+
+Information Science & Engineering
+
+East Point College of Engineering and Technology
+
+---
+
+# ⭐ Support
+
+If you like this project,
+
+⭐ Star this repository
+
+🍴 Fork it
+
+🛠 Contribute to improve it
+
+---
+
+## 📄 License
+
+This project is developed for learning, portfolio, and educational purposes.
