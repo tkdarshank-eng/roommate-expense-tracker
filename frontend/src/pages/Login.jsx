@@ -75,7 +75,7 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1>{isRegistering ? "👑 Create Leader Account" : "🏠 Roommate Expense Tracker"}</h1>
+        <h1>{isRegistering ? "👑 Create Leader Account" : "🏠 Roomie"}</h1>
         
         <div className="form-group">
           <label>{isRegistering ? "Leader Username" : "User ID"}</label>
