@@ -1,0 +1,16 @@
+{
+  "short_name": "Roomie",
+  "name": "Roomie - Expense Tracker",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#121214",
+  "theme_color": "#667eea",
+  "display": "standalone",
+  "orientation": "portrait"
+}
