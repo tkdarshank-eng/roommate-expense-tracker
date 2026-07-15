@@ -17,6 +17,10 @@ const expenseSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Roommate",
   },
+  billImage: {
+    type: String,
+    default: "",
+  },
   date: {
     type: Date,
     default: Date.now,

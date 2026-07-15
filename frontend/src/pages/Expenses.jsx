@@ -16,6 +16,7 @@ function Expenses({ user }) {
   const [expenses, setExpenses] = useState([]);
   const [roommates, setRoommates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeBill, setActiveBill] = useState(null);
 
   const fetchExpenses = () => {
     axios
@@ -296,6 +297,24 @@ function Expenses({ user }) {
                     </div>
                   </div>
                   <div className="expense-actions">
+                    {expense.billImage && (
+                      <button
+                        onClick={() => setActiveBill(expense.billImage)}
+                        style={{
+                          marginRight: "0.5rem",
+                          padding: "0.4rem 0.8rem",
+                          background: "rgba(255, 255, 255, 0.1)",
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                        }}
+                      >
+                        🧾 Bill
+                      </button>
+                    )}
                     <div className="expense-amount">
                       ₹{expense.isIndividual ? Number(expense.amount).toFixed(2) : expense.amount}
                     </div>
@@ -328,7 +347,24 @@ function Expenses({ user }) {
                       {new Date(expense.date).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="expense-actions" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <div className="expense-actions" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    {expense.billImage && (
+                      <button
+                        onClick={() => setActiveBill(expense.billImage)}
+                        style={{
+                          padding: "0.4rem 0.8rem",
+                          background: "rgba(255, 255, 255, 0.1)",
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                        }}
+                      >
+                        🧾 Bill
+                      </button>
+                    )}
                     <div className="expense-amount">₹{expense.amount}</div>
                     <button
                       onClick={() => handleDeleteExpense(expense._id)}
@@ -351,6 +387,98 @@ function Expenses({ user }) {
             </div>
           )}
         </>
+      )}
+
+      {/* Bill Image Viewer Modal */}
+      {activeBill && (
+        <div
+          onClick={() => setActiveBill(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(10, 10, 20, 0.85)",
+            backdropFilter: "blur(8px)",
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2rem",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "relative",
+              maxWidth: "90%",
+              maxHeight: "80%",
+              background: "rgba(20, 20, 35, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "16px",
+              padding: "1rem",
+              boxShadow: "0 12px 40px rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <button
+              onClick={() => setActiveBill(null)}
+              style={{
+                position: "absolute",
+                top: "-15px",
+                right: "-15px",
+                background: "#f5576c",
+                color: "white",
+                border: "none",
+                borderRadius: "50%",
+                width: "36px",
+                height: "36px",
+                cursor: "pointer",
+                fontSize: "1rem",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 15px rgba(245, 87, 108, 0.4)",
+              }}
+            >
+              ✕
+            </button>
+            <img
+              src={activeBill}
+              alt="Receipt Bill"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "70vh",
+                borderRadius: "12px",
+                objectFit: "contain",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+              }}
+            />
+            <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
+              <a
+                href={activeBill}
+                download="bill_receipt.jpg"
+                style={{
+                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  color: "white",
+                  textDecoration: "none",
+                  padding: "0.5rem 1.5rem",
+                  borderRadius: "8px",
+                  fontWeight: "600",
+                  fontSize: "0.9rem",
+                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.3)",
+                }}
+              >
+                📥 Download Receipt
+              </a>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
