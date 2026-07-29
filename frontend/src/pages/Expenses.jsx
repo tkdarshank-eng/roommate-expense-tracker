@@ -43,7 +43,8 @@ function Expenses({ user }) {
   };
 
   const getTotalPeople = () => {
-    const nonLeaderRoommates = roommates.filter(r => r.name.toLowerCase() !== "darshan");
+    const leaderName = user.leaderName || user.name || "Darshan";
+    const nonLeaderRoommates = roommates.filter(r => r.name && r.name.toLowerCase() !== leaderName.toLowerCase());
     return nonLeaderRoommates.length + 1;
   };
 
@@ -51,7 +52,7 @@ function Expenses({ user }) {
     let totalOwes = 0;
     const totalPeople = getTotalPeople();
     expenses.forEach((exp) => {
-      if (exp.paidBy.toLowerCase() !== user.name.toLowerCase() && exp.paidBy) {
+      if (exp.paidBy && exp.paidBy.toLowerCase() !== (user.name || "").toLowerCase()) {
         totalOwes += exp.amount / totalPeople;
       }
     });
@@ -59,12 +60,14 @@ function Expenses({ user }) {
   };
 
   const getMyPendingFromDB = () => {
-    const currentRoommate = roommates.find((r) => r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
+    if (!user || !user.name) return 0;
+    const currentRoommate = roommates.find((r) => r.name && r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
     return currentRoommate ? (currentRoommate.pendingAmount ?? 0) : 0;
   };
 
   const getCombinedExpenses = () => {
-    const currentRoommate = roommates.find((r) => r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
+    if (!user || !user.name) return [];
+    const currentRoommate = roommates.find((r) => r.name && r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
     console.log("getCombinedExpenses: user.name =", user.name);
     console.log("getCombinedExpenses: currentRoommate =", currentRoommate);
     console.log("getCombinedExpenses: roommates =", roommates);
@@ -73,7 +76,7 @@ function Expenses({ user }) {
           _id: item._id,
           title: item.title,
           amount: item.amount,
-          paidBy: "Darshan (Leader)",
+          paidBy: `${user.leaderName || "Leader"} (Leader)`,
           date: item.date,
           isIndividual: true,
         }))
@@ -119,8 +122,10 @@ function Expenses({ user }) {
         <>
           {(() => {
             const myPendingAmount = getMyPendingFromDB();
-            const currentRoommate = roommates.find((r) => r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
+            const currentRoommate = roommates.find((r) => r.name && r.name.trim().toLowerCase() === (user.name || "").trim().toLowerCase());
             const isPaymentPending = currentRoommate?.hasPaidRequest;
+            const leaderName = user.leaderName || "Leader";
+            const leaderUpi = user.leaderUpi || "tkdarshankumar@oksbi";
             return (
               <div
                 style={{
@@ -135,7 +140,7 @@ function Expenses({ user }) {
                 }}
               >
                 <p style={{ fontSize: "0.9rem", margin: "0", fontWeight: "600", opacity: "0.95" }}>
-                  💳 You Owe to Darshan
+                  💳 You Owe to {leaderName}
                 </p>
                 <div style={{ fontSize: "2.5rem", fontWeight: "900", margin: "0.8rem 0" }}>
                   ₹{Number(myPendingAmount).toFixed(2)}
@@ -156,15 +161,15 @@ function Expenses({ user }) {
 
                   <QRCode
                     size={180}
-                    value={`upi://pay?pa=tkdarshankumar@oksbi&pn=Darshan&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
+                    value={`upi://pay?pa=${leaderUpi}&pn=${encodeURIComponent(leaderName)}&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
                   />
 
-                  <p style={{ marginTop: "15px", fontWeight: "bold" }}>
-                    UPI ID: tkdarshankumar@oksbi
+                  <p style={{ marginTop: "15px", fontWeight: "bold", wordBreak: "break-all" }}>
+                    UPI ID: {leaderUpi}
                   </p>
 
                   <a
-                    href={`upi://pay?pa=tkdarshankumar@oksbi&pn=Darshan&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
+                    href={`upi://pay?pa=${leaderUpi}&pn=${encodeURIComponent(leaderName)}&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
                     onClick={(e) => {
                       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
                       if (!isMobile) {
@@ -227,7 +232,7 @@ function Expenses({ user }) {
           })()}
 
           {(() => {
-            const currentRoommate = roommates.find((r) => r.name.trim().toLowerCase() === user.name.trim().toLowerCase());
+            const currentRoommate = roommates.find((r) => r.name && r.name.trim().toLowerCase() === (user.name || "").trim().toLowerCase());
             if (currentRoommate && currentRoommate.history && currentRoommate.history.length > 0) {
               return (
                 <div

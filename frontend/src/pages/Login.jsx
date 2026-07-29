@@ -14,6 +14,8 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isLeaderRole, setIsLeaderRole] = useState(true);
+  const [leaderUsername, setLeaderUsername] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +23,12 @@ function Login({ onLogin }) {
     setError("");
 
     if (!id || !password) {
-      setError("Please fill in both fields");
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (!isLeaderRole && !leaderUsername.trim()) {
+      setError("Please enter your Group Leader's username");
       return;
     }
 
@@ -30,11 +37,13 @@ function Login({ onLogin }) {
       const response = await axios.post(`${API_BASE}/api/roommates/login`, {
         username: id,
         password,
+        leaderUsername: isLeaderRole ? "" : leaderUsername,
       });
 
-      const { id: userId, name, role } = response.data;
-      onLogin({ id: userId, name, role });
+      const { id: userId, name, role, leaderName, leaderUpi } = response.data;
+      onLogin({ id: userId, name, role, leaderName, leaderUpi });
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Invalid ID or Password");
     } finally {
       setLoading(false);
@@ -76,15 +85,98 @@ function Login({ onLogin }) {
     <div className="login-container">
       <div className="login-card">
         <h1>{isRegistering ? "👑 Create Leader Account" : "🏠 Roomie"}</h1>
-        
+
+        {!isRegistering && (
+          <div
+            style={{
+              display: "flex",
+              background: "rgba(255, 255, 255, 0.05)",
+              borderRadius: "8px",
+              padding: "4px",
+              marginBottom: "1.5rem",
+              border: "1px solid rgba(255, 255, 255, 0.1)"
+            }}
+          >
+            <button
+              style={{
+                flex: 1,
+                background: isLeaderRole ? "#667eea" : "transparent",
+                border: "none",
+                color: "white",
+                padding: "0.5rem",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s"
+              }}
+              onClick={() => {
+                setIsLeaderRole(true);
+                setError("");
+              }}
+            >
+              👑 Leader
+            </button>
+            <button
+              style={{
+                flex: 1,
+                background: !isLeaderRole ? "#667eea" : "transparent",
+                border: "none",
+                color: "white",
+                padding: "0.5rem",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s"
+              }}
+              onClick={() => {
+                setIsLeaderRole(false);
+                setError("");
+              }}
+            >
+              👤 Roommate
+            </button>
+          </div>
+        )}
+
+        {!isLeaderRole && !isRegistering && (
+          <div className="form-group">
+            <label>Group Leader Username</label>
+            <input
+              type="text"
+              placeholder="Enter leader's username (e.g., Darshan)"
+              value={leaderUsername}
+              onChange={(e) => setLeaderUsername(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+              disabled={loading}
+            />
+          </div>
+        )}
+
         <div className="form-group">
-          <label>{isRegistering ? "Leader Username" : "User ID"}</label>
+          <label>
+            {isRegistering
+              ? "Leader Username"
+              : isLeaderRole
+              ? "Leader Username"
+              : "Your Name"}
+          </label>
           <input
             type="text"
-            placeholder={isRegistering ? "e.g., Darshan" : "e.g., Darshan or your name"}
+            placeholder={
+              isRegistering
+                ? "e.g., Darshan"
+                : isLeaderRole
+                ? "e.g., Darshan"
+                : "e.g., Sujay"
+            }
             value={id}
             onChange={(e) => setId(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && (isRegistering ? handleRegisterLeader() : handleLogin())}
+            onKeyPress={(e) =>
+              e.key === "Enter" &&
+              (isRegistering ? handleRegisterLeader() : handleLogin())
+            }
             disabled={loading}
           />
         </div>
@@ -96,7 +188,10 @@ function Login({ onLogin }) {
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && (isRegistering ? handleRegisterLeader() : handleLogin())}
+            onKeyPress={(e) =>
+              e.key === "Enter" &&
+              (isRegistering ? handleRegisterLeader() : handleLogin())
+            }
             disabled={loading}
           />
         </div>
@@ -115,10 +210,17 @@ function Login({ onLogin }) {
           </div>
         )}
 
-        {error && <div className="error-message" style={{ color: "#f5576c", marginBottom: "1rem", fontWeight: "600" }}>{error}</div>}
+        {error && (
+          <div
+            className="error-message"
+            style={{ color: "#f5576c", marginBottom: "1rem", fontWeight: "600" }}
+          >
+            {error}
+          </div>
+        )}
 
-        <button 
-          onClick={isRegistering ? handleRegisterLeader : handleLogin} 
+        <button
+          onClick={isRegistering ? handleRegisterLeader : handleLogin}
           className="login-btn"
           disabled={loading}
         >
@@ -132,7 +234,7 @@ function Login({ onLogin }) {
               cursor: "pointer",
               fontWeight: "600",
               textDecoration: "underline",
-              fontSize: "0.9rem"
+              fontSize: "0.9rem",
             }}
             onClick={() => {
               setIsRegistering(!isRegistering);
@@ -141,7 +243,9 @@ function Login({ onLogin }) {
               setConfirmPassword("");
             }}
           >
-            {isRegistering ? "Already have a leader account? Login" : "Create Leader Account"}
+            {isRegistering
+              ? "Already have a leader account? Login"
+              : "Create Leader Account"}
           </span>
         </div>
       </div>

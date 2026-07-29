@@ -14,6 +14,10 @@ const roommateSchema = new mongoose.Schema({
     enum: ["leader", "user"],
     default: "user",
   },
+  upiId: {
+    type: String,
+    default: "",
+  },
   addedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Roommate",

@@ -11,15 +11,39 @@ const API_BASE = isLocal
   ? `http://${window.location.hostname}:5000`
   : "https://roommate-expense-tracker-tmx2.onrender.com";
 
-function RoommateAdmin() {
+function RoommateAdmin({ user }) {
   const [roommates, setRoommates] = useState([]);
   const [newRoommate, setNewRoommate] = useState("");
   const [password, setPassword] = useState("");
   const [newRoommatePasswords, setNewRoommatePasswords] = useState({});
   const [pendingAmounts, setPendingAmounts] = useState({});
   const [additionalAmounts, setAdditionalAmounts] = useState({});
+  const [upiId, setUpiId] = useState(user.leaderUpi || "");
   const [additionalTitles, setAdditionalTitles] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const handleUpdateUpi = async () => {
+    if (!upiId.trim()) {
+      alert("Please enter a valid UPI ID");
+      return;
+    }
+
+    try {
+      await axios.patch(`${API_BASE}/api/roommates/${user.id}/upi`, {
+        upiId: upiId.trim(),
+      });
+      alert("✅ UPI ID updated successfully!");
+      
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser) {
+        storedUser.leaderUpi = upiId.trim();
+        localStorage.setItem("user", JSON.stringify(storedUser));
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error updating UPI ID: " + (error.response?.data?.message || error.message));
+    }
+  };
 
   const fetchRoommates = () => {
     axios
@@ -211,6 +235,47 @@ function RoommateAdmin() {
   return (
     <div className="container">
       <h1>Manage Roommates</h1>
+
+      <div
+        style={{
+          padding: "1.5rem",
+          background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
+          border: "1px solid rgba(102, 126, 234, 0.2)",
+          borderRadius: "16px",
+          marginBottom: "2rem",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <h2 style={{ color: "#fff", fontSize: "1.2rem", marginBottom: "0.5rem" }}>💳 Configure UPI Details</h2>
+        <p style={{ color: "#bbb", fontSize: "0.85rem", marginBottom: "1rem" }}>
+          Set your UPI ID so roommates can pay their pending amounts directly to you using the QR code.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.75rem", alignItems: "center" }}>
+          <input
+            type="text"
+            placeholder="e.g., yourname@oksbi"
+            value={upiId}
+            onChange={(e) => setUpiId(e.target.value)}
+            style={{ margin: 0 }}
+          />
+          <button
+            onClick={handleUpdateUpi}
+            style={{
+              width: "auto",
+              padding: "0.75rem 1.5rem",
+              background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+              border: "none",
+              color: "white",
+              borderRadius: "8px",
+              fontWeight: "700",
+              cursor: "pointer",
+            }}
+          >
+            Save UPI ID
+          </button>
+        </div>
+      </div>
 
       <div className="form-group">
         <label>Add New Roommate</label>

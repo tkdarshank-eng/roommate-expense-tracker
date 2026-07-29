@@ -35,7 +35,7 @@ function ProtectedRoommateRoute({ user }) {
     return null;
   }
 
-  return <RoommateAdmin />;
+  return <RoommateAdmin user={user} />;
 }
 
 function Navigation({ user, onLogout }) {

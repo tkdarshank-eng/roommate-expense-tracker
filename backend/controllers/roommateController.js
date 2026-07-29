@@ -159,14 +159,30 @@ const registerLeader = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, leaderUsername } = req.body;
     if (!username || !username.trim() || !password || !password.trim()) {
       return res.status(400).json({ message: "Username and password are required" });
     }
 
-    const roommate = await Roommate.findOne({
-      name: { $regex: new RegExp("^" + username.trim() + "$", "i") },
-    });
+    let query = {
+      name: { $regex: new RegExp("^" + username.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + "$", "i") },
+    };
+
+    if (leaderUsername && leaderUsername.trim()) {
+      const leader = await Roommate.findOne({
+        name: { $regex: new RegExp("^" + leaderUsername.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + "$", "i") },
+        role: "leader",
+      });
+      if (!leader) {
+        return res.status(401).json({ message: "Group Leader not found" });
+      }
+      query.addedBy = leader._id;
+      query.role = "user";
+    } else {
+      query.role = "leader";
+    }
+
+    const roommate = await Roommate.findOne(query);
 
     if (!roommate) {
       return res.status(401).json({ message: "Invalid Username or Password" });
@@ -176,10 +192,16 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid Username or Password" });
     }
 
+    const leaderDoc = roommate.role === "leader"
+      ? roommate
+      : await Roommate.findById(roommate.addedBy);
+
     res.status(200).json({
       id: roommate._id,
       name: roommate.name,
       role: roommate.role,
+      leaderName: leaderDoc ? leaderDoc.name : "Leader",
+      leaderUpi: leaderDoc ? (leaderDoc.upiId || "tkdarshankumar@oksbi") : "tkdarshankumar@oksbi",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -227,6 +249,27 @@ const submitPaymentRequest = async (req, res) => {
   }
 };
 
+const updateRoommateUpi = async (req, res) => {
+  try {
+    const { upiId } = req.body;
+    const cleanUpi = upiId ? upiId.trim() : "";
+
+    const roommate = await Roommate.findByIdAndUpdate(
+      req.params.id,
+      { upiId: cleanUpi },
+      { new: true }
+    );
+
+    if (!roommate) {
+      return res.status(404).json({ message: "Roommate not found" });
+    }
+
+    res.status(200).json({ message: "UPI ID updated successfully", roommate });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   addRoommate,
   getRoommates,
@@ -237,4 +280,5 @@ module.exports = {
   loginUser,
   updateRoommatePassword,
   submitPaymentRequest,
+  updateRoommateUpi,
 };
