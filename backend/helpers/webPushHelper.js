@@ -1,12 +1,23 @@
 const webpush = require("web-push");
 const Roommate = require("../models/Roommate");
 
-// Set web-push keys using environment variables
-webpush.setVapidDetails(
-  "mailto:tkdarshankumar@gmail.com",
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
+let isPushConfigured = false;
+
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(
+      "mailto:tkdarshankumar@gmail.com",
+      process.env.VAPID_PUBLIC_KEY.trim(),
+      process.env.VAPID_PRIVATE_KEY.trim()
+    );
+    isPushConfigured = true;
+    console.log("W3C Web Push configured successfully.");
+  } catch (err) {
+    console.error("Failed to initialize VAPID details for web-push:", err.message);
+  }
+} else {
+  console.warn("WARNING: VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY is missing from environment. Offline Web Push notifications are disabled.");
+}
 
 /**
  * Send W3C Web Push Notification to all active subscriptions of a roommate
@@ -14,6 +25,10 @@ webpush.setVapidDetails(
  * @param {String} message Notification alert message
  */
 const sendPushNotification = async (recipientId, message) => {
+  if (!isPushConfigured) {
+    return;
+  }
+
   try {
     const roommate = await Roommate.findById(recipientId);
     if (!roommate || !roommate.pushSubscriptions || roommate.pushSubscriptions.length === 0) {
@@ -41,14 +56,12 @@ const sendPushNotification = async (recipientId, message) => {
         );
       } catch (err) {
         console.error("Failed to send push alert to endpoint:", sub.endpoint, err.message);
-        // If the subscription is expired or invalid, remove it
         if (err.statusCode === 410 || err.statusCode === 404) {
           failedEndpoints.push(sub.endpoint);
         }
       }
     }
 
-    // Clean up failed subscriptions if any
     if (failedEndpoints.length > 0) {
       roommate.pushSubscriptions = roommate.pushSubscriptions.filter(
         (sub) => !failedEndpoints.includes(sub.endpoint)
