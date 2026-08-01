@@ -31,6 +31,10 @@ const roommateSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Roommate",
   },
+  phoneNumber: {
+    type: String,
+    default: "",
+  },
   pendingAmount: {
     type: Number,
     default: 0,

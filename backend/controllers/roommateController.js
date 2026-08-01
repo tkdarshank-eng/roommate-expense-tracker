@@ -335,6 +335,27 @@ const subscribeUser = async (req, res) => {
   }
 };
 
+const updateRoommatePhone = async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+    const cleanPhone = phoneNumber ? phoneNumber.trim() : "";
+
+    const roommate = await Roommate.findByIdAndUpdate(
+      req.params.id,
+      { phoneNumber: cleanPhone },
+      { new: true }
+    );
+
+    if (!roommate) {
+      return res.status(404).json({ message: "Roommate not found" });
+    }
+
+    res.status(200).json({ message: "Phone number updated successfully", roommate });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   addRoommate,
   getRoommates,
@@ -347,4 +368,5 @@ module.exports = {
   submitPaymentRequest,
   updateRoommateUpi,
   subscribeUser,
+  updateRoommatePhone,
 };

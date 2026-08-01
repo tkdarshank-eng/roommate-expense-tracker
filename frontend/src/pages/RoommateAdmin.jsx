@@ -21,6 +21,7 @@ function RoommateAdmin({ user }) {
   const [upiId, setUpiId] = useState(user.leaderUpi || "");
   const [additionalTitles, setAdditionalTitles] = useState({});
   const [loading, setLoading] = useState(true);
+  const [phoneNumbers, setPhoneNumbers] = useState({});
 
   const handleUpdateUpi = async () => {
     if (!upiId.trim()) {
@@ -104,6 +105,41 @@ function RoommateAdmin({ user }) {
       ...prev,
       [roommateId]: value,
     }));
+  };
+
+  const handlePhoneChange = (roommateId, value) => {
+    setPhoneNumbers((prev) => ({
+      ...prev,
+      [roommateId]: value,
+    }));
+  };
+
+  const handleUpdatePhone = async (roommateId, roommateName) => {
+    const phone = phoneNumbers[roommateId] ?? "";
+    try {
+      await axios.patch(`${API_BASE}/api/roommates/${roommateId}/phone`, {
+        phoneNumber: phone,
+      });
+      alert(`✅ Saved phone number for ${roommateName}!`);
+      fetchRoommates();
+    } catch (error) {
+      console.error(error);
+      alert("Error saving phone number: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleSendSMS = (roommate) => {
+    const phone = roommate.phoneNumber;
+    if (!phone) {
+      alert("Please configure a mobile number first!");
+      return;
+    }
+
+    const upi = upiId || "tkdarshankumar@oksbi";
+    const leaderName = user.name || "the leader";
+    const message = `Hi ${roommate.name}, this is a reminder from ${leaderName}. Your pending balance in Roomie is Rs ${Number(roommate.pendingAmount || 0).toFixed(2)}. Please pay using UPI: ${upi}`;
+
+    window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
   };
 
   const handleUpdatePassword = async (roommateId, roommateName) => {
@@ -416,6 +452,50 @@ function RoommateAdmin({ user }) {
                   }}
                 >
                   Save Amount
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto auto",
+                  gap: "0.75rem",
+                  alignItems: "center",
+                  marginTop: "0.75rem",
+                }}
+              >
+                <input
+                  type="tel"
+                  placeholder="Mobile Number"
+                  value={phoneNumbers[roommate._id] ?? roommate.phoneNumber ?? ""}
+                  onChange={(e) => handlePhoneChange(roommate._id, e.target.value)}
+                />
+                <button
+                  onClick={() => handleUpdatePhone(roommate._id, roommate.name)}
+                  style={{
+                    width: "auto",
+                    padding: "0.75rem 1rem",
+                    whiteSpace: "nowrap",
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  }}
+                >
+                  Save Phone
+                </button>
+                <button
+                  onClick={() => handleSendSMS(roommate)}
+                  disabled={!roommate.phoneNumber}
+                  style={{
+                    width: "auto",
+                    padding: "0.75rem 1rem",
+                    whiteSpace: "nowrap",
+                    background: roommate.phoneNumber 
+                      ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" 
+                      : "#4a4a5a",
+                    cursor: roommate.phoneNumber ? "pointer" : "not-allowed",
+                    opacity: roommate.phoneNumber ? 1 : 0.5,
+                  }}
+                >
+                  💬 Send SMS
                 </button>
               </div>
 

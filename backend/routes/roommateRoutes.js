@@ -12,6 +12,7 @@ const {
   submitPaymentRequest,
   updateRoommateUpi,
   subscribeUser,
+  updateRoommatePhone,
 } = require("../controllers/roommateController");
 
 const router = express.Router();
@@ -27,5 +28,6 @@ router.patch("/:id/password", updateRoommatePassword);
 router.patch("/:id/payment-request", submitPaymentRequest);
 router.patch("/:id/upi", updateRoommateUpi);
 router.post("/subscribe", subscribeUser);
+router.patch("/:id/phone", updateRoommatePhone);
 
 module.exports = router;
