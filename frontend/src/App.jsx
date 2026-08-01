@@ -79,7 +79,7 @@ function Navigation({ user, onLogout }) {
             if (!isFirstLoad) {
               new Notification("Roomie Alert 🏠", {
                 body: n.message,
-                icon: "/favicon.svg",
+                icon: "/favicon.png",
                 tag: n._id,
               });
             }
