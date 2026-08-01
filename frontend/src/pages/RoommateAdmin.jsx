@@ -137,7 +137,14 @@ function RoommateAdmin({ user }) {
 
     const upi = upiId || "tkdarshankumar@oksbi";
     const leaderName = user.name || "the leader";
-    const message = `Hi ${roommate.name}, this is a reminder from ${leaderName}. Your pending balance in Roomie is Rs ${Number(roommate.pendingAmount || 0).toFixed(2)}. Please pay using UPI: ${upi}`;
+
+    let extraText = "";
+    if (roommate.history && roommate.history.length > 0) {
+      const lastItem = roommate.history[roommate.history.length - 1];
+      extraText = ` (includes newly added: ${lastItem.title} - Rs ${Number(lastItem.amount).toFixed(2)})`;
+    }
+
+    const message = `Hi ${roommate.name}, this is a reminder from ${leaderName}. Your pending balance in Roomie is Rs ${Number(roommate.pendingAmount || 0).toFixed(2)}${extraText}. Please pay using UPI: ${upi}`;
 
     window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
   };
