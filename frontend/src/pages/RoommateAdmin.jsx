@@ -463,9 +463,8 @@ function RoommateAdmin({ user }) {
                   onChange={(e) => handleAdditionalTitleChange(roommate._id, e.target.value)}
                 />
                 <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Additional amount"
+                  type="text"
+                  placeholder="Amount (- to deduct)"
                   value={additionalAmounts[roommate._id] ?? ""}
                   onChange={(e) => handleAdditionalAmountChange(roommate._id, e.target.value)}
                 />

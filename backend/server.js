@@ -6,6 +6,8 @@ const dns = require("dns");
 const expenseRoutes = require("./routes/expenseRoutes");
 const roommateRoutes = require("./routes/roommateRoutes");
 const pendingRoutes = require("./routes/pendingRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+
 const app = express();
 require("dotenv").config();
 app.use(cors());
@@ -14,6 +16,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/roommates", roommateRoutes);
 app.use("/api/pending", pendingRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const currentDnsServers = dns.getServers();
 if (

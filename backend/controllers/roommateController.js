@@ -1,5 +1,6 @@
 const Roommate = require("../models/Roommate");
 const mongoose = require("mongoose");
+const Notification = require("../models/Notification");
 
 const addRoommate = async (req, res) => {
   try {
@@ -75,6 +76,18 @@ const updatePendingAmount = async (req, res) => {
       return res.status(404).json({ message: "Roommate not found" });
     }
 
+    // Send notification to the roommate
+    try {
+      const message = `💸 Leader has updated your total pending balance to: ₹${roommate.pendingAmount.toFixed(2)}`;
+      const notification = new Notification({
+        recipientId: roommate._id,
+        message,
+      });
+      await notification.save();
+    } catch (notifError) {
+      console.error("Failed to send balance update notification:", notifError);
+    }
+
     res.status(200).json(roommate);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -109,6 +122,22 @@ const addPendingAmount = async (req, res) => {
     }
 
     const savedRoommate = await roommate.save();
+
+    // Send notification to the roommate
+    try {
+      const typeLabel = extraAmount > 0 ? "added" : "deducted";
+      const displayAmount = Math.abs(extraAmount);
+      const message = `💸 Leader has ${typeLabel} ₹${displayAmount} for: "${title.trim()}". New pending balance: ₹${savedRoommate.pendingAmount.toFixed(2)}`;
+      
+      const notification = new Notification({
+        recipientId: savedRoommate._id,
+        message,
+      });
+      await notification.save();
+    } catch (notifError) {
+      console.error("Failed to send balance update notification:", notifError);
+    }
+
     res.status(200).json(savedRoommate);
   } catch (error) {
     res.status(500).json({ message: error.message });

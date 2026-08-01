@@ -1,6 +1,7 @@
 const Expense = require("../models/Expense");
 const Roommate = require("../models/Roommate");
 const mongoose = require("mongoose");
+const Notification = require("../models/Notification");
 
 // Add Expense
 const addExpense = async (req, res) => {
@@ -49,6 +50,23 @@ const addExpense = async (req, res) => {
           { $inc: { pendingAmount: shareAmount } }
         );
       }
+    }
+
+    // Send notifications to all roommates in the group
+    try {
+      const roommates = await Roommate.find({ addedBy: leader._id });
+      const notifierName = userRole === "leader" ? leader.name : req.body.paidBy || "Leader";
+      const message = `🔔 New shared expense added: "${savedExpense.title}" of ₹${savedExpense.amount} (paid by ${notifierName})`;
+      
+      const notifications = roommates.map((roommate) => ({
+        recipientId: roommate._id,
+        message,
+      }));
+      if (notifications.length > 0) {
+        await Notification.insertMany(notifications);
+      }
+    } catch (notifError) {
+      console.error("Failed to send expense notifications:", notifError);
     }
 
     res.status(201).json(savedExpense);
@@ -125,6 +143,23 @@ const deleteExpense = async (req, res) => {
     }
 
     await Expense.findByIdAndDelete(id);
+
+    // Send notifications to all roommates in the group
+    try {
+      if (leader) {
+        const roommates = await Roommate.find({ addedBy: leader._id });
+        const message = `🗑️ Expense deleted: "${expense.title}" of ₹${expense.amount}`;
+        const notifications = roommates.map((roommate) => ({
+          recipientId: roommate._id,
+          message,
+        }));
+        if (notifications.length > 0) {
+          await Notification.insertMany(notifications);
+        }
+      }
+    } catch (notifError) {
+      console.error("Failed to send delete notifications:", notifError);
+    }
 
     console.log("Expense deleted successfully:", id);
     res.status(200).json({ message: "Expense deleted successfully", deletedExpense: expense });
