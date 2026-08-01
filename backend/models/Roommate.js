@@ -18,6 +18,15 @@ const roommateSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  pushSubscriptions: [
+    {
+      endpoint: String,
+      keys: {
+        p256dh: String,
+        auth: String,
+      },
+    },
+  ],
   addedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Roommate",

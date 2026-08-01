@@ -36,7 +36,16 @@ const markNotificationsAsRead = async (req, res) => {
   }
 };
 
+const getVapidPublicKey = async (req, res) => {
+  try {
+    res.status(200).json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getNotifications,
   markNotificationsAsRead,
+  getVapidPublicKey,
 };

@@ -1,6 +1,7 @@
 const Roommate = require("../models/Roommate");
 const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
+const { sendPushNotification } = require("../helpers/webPushHelper");
 
 const addRoommate = async (req, res) => {
   try {
@@ -84,6 +85,9 @@ const updatePendingAmount = async (req, res) => {
         message,
       });
       await notification.save();
+      
+      // Trigger W3C Web Push
+      sendPushNotification(roommate._id, message);
     } catch (notifError) {
       console.error("Failed to send balance update notification:", notifError);
     }
@@ -134,6 +138,9 @@ const addPendingAmount = async (req, res) => {
         message,
       });
       await notification.save();
+      
+      // Trigger W3C Web Push
+      sendPushNotification(savedRoommate._id, message);
     } catch (notifError) {
       console.error("Failed to send balance update notification:", notifError);
     }
@@ -299,6 +306,35 @@ const updateRoommateUpi = async (req, res) => {
   }
 };
 
+const subscribeUser = async (req, res) => {
+  try {
+    const userId = req.headers["x-user-id"];
+    const subscription = req.body;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid or missing User ID in headers" });
+    }
+
+    const roommate = await Roommate.findById(userId);
+    if (!roommate) {
+      return res.status(404).json({ message: "Roommate not found" });
+    }
+
+    const exists = roommate.pushSubscriptions.some(
+      (sub) => sub.endpoint === subscription.endpoint
+    );
+
+    if (!exists) {
+      roommate.pushSubscriptions.push(subscription);
+      await roommate.save();
+    }
+
+    res.status(200).json({ message: "Subscribed to push notifications successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   addRoommate,
   getRoommates,
@@ -310,4 +346,5 @@ module.exports = {
   updateRoommatePassword,
   submitPaymentRequest,
   updateRoommateUpi,
+  subscribeUser,
 };

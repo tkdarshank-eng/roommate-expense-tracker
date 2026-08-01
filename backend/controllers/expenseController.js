@@ -2,6 +2,7 @@ const Expense = require("../models/Expense");
 const Roommate = require("../models/Roommate");
 const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
+const { sendPushNotification } = require("../helpers/webPushHelper");
 
 // Add Expense
 const addExpense = async (req, res) => {
@@ -64,6 +65,11 @@ const addExpense = async (req, res) => {
       }));
       if (notifications.length > 0) {
         await Notification.insertMany(notifications);
+        
+        // Trigger W3C Web Push for each roommate
+        for (const roommate of roommates) {
+          sendPushNotification(roommate._id, message);
+        }
       }
     } catch (notifError) {
       console.error("Failed to send expense notifications:", notifError);
@@ -155,6 +161,11 @@ const deleteExpense = async (req, res) => {
         }));
         if (notifications.length > 0) {
           await Notification.insertMany(notifications);
+          
+          // Trigger W3C Web Push for each roommate
+          for (const roommate of roommates) {
+            sendPushNotification(roommate._id, message);
+          }
         }
       }
     } catch (notifError) {
