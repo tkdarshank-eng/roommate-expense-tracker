@@ -43,6 +43,12 @@ app.get("/", (req, res) => {
   res.send("Backend + MongoDB Running");
 });
 
+app.get("/debug-env", (req, res) => {
+  res.json({
+    keys: Object.keys(process.env).filter(k => k.includes("VAPID") || k.includes("MONGO") || k.includes("KEY")),
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
