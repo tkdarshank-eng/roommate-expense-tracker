@@ -486,7 +486,7 @@ function RoommateAdmin({ user }) {
                     background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                   }}
                 >
-                  Save Phone
+                  {roommate.phoneNumber ? "Update Phone" : "Save Phone"}
                 </button>
                 <button
                   onClick={() => handleSendSMS(roommate)}
