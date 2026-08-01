@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Login from "./pages/Login";
@@ -50,16 +50,47 @@ function Navigation({ user, onLogout }) {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+  const notifiedIdsRef = useRef(new Set());
 
   const fetchNotifications = async () => {
     if (!user || user.role !== "user") return;
     try {
       const response = await axios.get(`${API_BASE}/api/notifications`);
-      setNotifications(response.data);
+      const fetchedNotifications = response.data;
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        const isFirstLoad = notifiedIdsRef.current.size === 0;
+
+        fetchedNotifications.forEach((n) => {
+          if (!n.read && !notifiedIdsRef.current.has(n._id)) {
+            notifiedIdsRef.current.add(n._id);
+            
+            if (!isFirstLoad) {
+              new Notification("Roomie Alert 🏠", {
+                body: n.message,
+                icon: "/favicon.svg",
+                tag: n._id,
+              });
+            }
+          }
+        });
+      }
+
+      setNotifications(fetchedNotifications);
     } catch (err) {
       console.error("Error fetching notifications:", err);
     }
   };
+
+  useEffect(() => {
+    if (user && user.role === "user" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission().then((permission) => {
+          console.log("Notification permission:", permission);
+        });
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchNotifications();
