@@ -22,6 +22,7 @@ function RoommateAdmin({ user }) {
   const [additionalTitles, setAdditionalTitles] = useState({});
   const [loading, setLoading] = useState(true);
   const [phoneNumbers, setPhoneNumbers] = useState({});
+  const [expandedRoommateId, setExpandedRoommateId] = useState(null);
 
   const handleUpdateUpi = async () => {
     if (!upiId.trim()) {
@@ -347,257 +348,278 @@ function RoommateAdmin({ user }) {
         <p style={{ color: "#999" }}>No roommates added yet.</p>
       ) : (
         <div style={{ marginTop: "1rem" }}>
-          {roommates.map((roommate) => (
-            <div
-              key={roommate._id}
-              style={{
-                padding: "1.5rem",
-                background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
-                border: "1px solid rgba(102, 126, 234, 0.2)",
-                borderRadius: "16px",
-                marginBottom: "1.2rem",
-                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
-                backdropFilter: "blur(10px)",
-              }}
-            >
+          {roommates.map((roommate) => {
+            const isExpanded = expandedRoommateId === roommate._id;
+            return (
               <div
+                key={roommate._id}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "1rem",
-                  flexWrap: "wrap",
-                  marginBottom: "1rem",
+                  padding: "1rem 1.5rem",
+                  background: isExpanded 
+                    ? "linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)" 
+                    : "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)",
+                  border: isExpanded ? "1px solid rgba(102, 126, 234, 0.4)" : "1px solid rgba(102, 126, 234, 0.15)",
+                  borderRadius: "16px",
+                  marginBottom: "1.2rem",
+                  boxShadow: isExpanded ? "0 10px 30px rgba(0, 0, 0, 0.3)" : "0 4px 12px rgba(0, 0, 0, 0.15)",
+                  backdropFilter: "blur(10px)",
+                  transition: "all 0.3s ease",
                 }}
               >
-                <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#fff" }}>{roommate.name}</span>
+                {/* Header Row (Toggles Collapse) */}
                 <div
+                  onClick={() => setExpandedRoommateId(isExpanded ? null : roommate._id)}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.75rem",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <span style={{ color: "#f5576c", fontWeight: "700" }}>
-                    Pending: Rs {Number(roommate.pendingAmount || 0).toFixed(2)}
-                  </span>
-                  <button
-                    onClick={() => handleDeleteRoommate(roommate._id, roommate.name)}
-                    style={{
-                      width: "auto",
-                      padding: "0.5rem 0.75rem",
-                      background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
-                      fontSize: "0.85rem",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              {roommate.hasPaidRequest && (
-                <div
-                  style={{
-                    background: "rgba(245, 87, 108, 0.15)",
-                    border: "1px solid rgba(245, 87, 108, 0.3)",
-                    padding: "1rem",
-                    borderRadius: "10px",
-                    marginBottom: "1rem",
-                    display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center",
                     gap: "1rem",
                     flexWrap: "wrap",
+                    cursor: "pointer",
+                    userSelect: "none"
                   }}
                 >
-                  <span style={{ color: "#f5576c", fontWeight: "600", fontSize: "0.9rem" }}>
-                    ⚠️ {roommate.name} has submitted a payment request!
-                  </span>
-                  <button
-                    onClick={() => handleApprovePayment(roommate._id, roommate.name)}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#fff" }}>
+                      {roommate.name}
+                    </span>
+                    <span style={{ color: "#667eea", fontSize: "0.85rem", fontWeight: "bold" }}>
+                      {isExpanded ? "▲ Hide Actions" : "▼ Show Actions"}
+                    </span>
+                  </div>
+                  <div
                     style={{
-                      width: "auto",
-                      padding: "0.5rem 1rem",
-                      background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-                      border: "none",
-                      color: "white",
-                      borderRadius: "6px",
-                      fontWeight: "700",
-                      cursor: "pointer",
-                      fontSize: "0.85rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
                     }}
+                    onClick={(e) => e.stopPropagation()} // Prevent toggling when clicking action buttons
                   >
-                    Approve Payment (Reset to 0)
-                  </button>
+                    <span style={{ color: "#f5576c", fontWeight: "700" }}>
+                      Pending: Rs {Number(roommate.pendingAmount || 0).toFixed(2)}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteRoommate(roommate._id, roommate.name)}
+                      style={{
+                        width: "auto",
+                        padding: "0.4rem 0.75rem",
+                        background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
+                        fontSize: "0.8rem",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              )}
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  gap: "0.75rem",
-                  alignItems: "center",
-                }}
-              >
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="Pending amount"
-                  value={pendingAmounts[roommate._id] ?? ""}
-                  onChange={(e) => handlePendingAmountChange(roommate._id, e.target.value)}
-                />
-                <button
-                  onClick={() => handleUpdatePendingAmount(roommate._id, roommate.name)}
-                  style={{
-                    width: "auto",
-                    padding: "0.75rem 1rem",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Save Amount
-                </button>
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto auto",
-                  gap: "0.75rem",
-                  alignItems: "center",
-                  marginTop: "0.75rem",
-                }}
-              >
-                <input
-                  type="tel"
-                  placeholder="Mobile Number"
-                  value={phoneNumbers[roommate._id] ?? roommate.phoneNumber ?? ""}
-                  onChange={(e) => handlePhoneChange(roommate._id, e.target.value)}
-                />
-                <button
-                  onClick={() => handleUpdatePhone(roommate._id, roommate.name)}
-                  style={{
-                    width: "auto",
-                    padding: "0.75rem 1rem",
-                    whiteSpace: "nowrap",
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  }}
-                >
-                  {roommate.phoneNumber ? "Update Phone" : "Save Phone"}
-                </button>
-                <button
-                  onClick={() => handleSendSMS(roommate)}
-                  disabled={!roommate.phoneNumber}
-                  style={{
-                    width: "auto",
-                    padding: "0.75rem 1rem",
-                    whiteSpace: "nowrap",
-                    background: roommate.phoneNumber 
-                      ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" 
-                      : "#4a4a5a",
-                    cursor: roommate.phoneNumber ? "pointer" : "not-allowed",
-                    opacity: roommate.phoneNumber ? 1 : 0.5,
-                  }}
-                >
-                  💬 Send SMS
-                </button>
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  gap: "0.75rem",
-                  alignItems: "center",
-                  marginTop: "0.75rem",
-                }}
-              >
-                <input
-                  type="password"
-                  placeholder="Set New Password"
-                  value={newRoommatePasswords[roommate._id] ?? ""}
-                  onChange={(e) => handlePasswordChange(roommate._id, e.target.value)}
-                />
-                <button
-                  onClick={() => handleUpdatePassword(roommate._id, roommate.name)}
-                  style={{
-                    width: "auto",
-                    padding: "0.75rem 1rem",
-                    whiteSpace: "nowrap",
-                    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-                  }}
-                >
-                  Change Password
-                </button>
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr auto",
-                  gap: "0.75rem",
-                  alignItems: "center",
-                  marginTop: "0.75rem",
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Title / Reason (e.g. Water)"
-                  value={additionalTitles[roommate._id] ?? ""}
-                  onChange={(e) => handleAdditionalTitleChange(roommate._id, e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Amount (- to deduct)"
-                  value={additionalAmounts[roommate._id] ?? ""}
-                  onChange={(e) => handleAdditionalAmountChange(roommate._id, e.target.value)}
-                />
-                <button
-                  onClick={() => handleAddPendingAmount(roommate._id, roommate.name)}
-                  style={{
-                    width: "auto",
-                    padding: "0.75rem 1rem",
-                    whiteSpace: "nowrap",
-                    background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-                  }}
-                >
-                  Add Amount
-                </button>
-              </div>
-
-              {roommate.history && roommate.history.length > 0 && (
-                <div
-                  style={{
-                    marginTop: "1rem",
-                    padding: "1rem",
-                    background: "rgba(20, 20, 35, 0.6)",
-                    border: "1px solid rgba(102, 126, 234, 0.15)",
-                    borderRadius: "10px",
-                    color: "#e0e0e0",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  <strong style={{ display: "block", marginBottom: "0.5rem", color: "#667eea", fontWeight: "600" }}>
-                    Pending Amount Breakdown:
-                  </strong>
-                  <ul style={{ margin: "0", paddingLeft: "1.2rem" }}>
-                    {roommate.history.map((item, idx) => (
-                      <li key={item._id || idx} style={{ marginBottom: "0.4rem" }}>
-                        <span style={{ fontWeight: "600" }}>{item.title}</span>: +₹
-                        {Number(item.amount).toFixed(2)}{" "}
-                        <span style={{ fontSize: "0.75rem", color: "#999" }}>
-                          ({new Date(item.date).toLocaleDateString()})
+                {/* Collapsible Action Content */}
+                {isExpanded && (
+                  <div style={{ marginTop: "1.25rem", borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "1.25rem" }}>
+                    {roommate.hasPaidRequest && (
+                      <div
+                        style={{
+                          background: "rgba(245, 87, 108, 0.15)",
+                          border: "1px solid rgba(245, 87, 108, 0.3)",
+                          padding: "1rem",
+                          borderRadius: "10px",
+                          marginBottom: "1rem",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "1rem",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span style={{ color: "#f5576c", fontWeight: "600", fontSize: "0.9rem" }}>
+                          ⚠️ {roommate.name} has submitted a payment request!
                         </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))}
+                        <button
+                          onClick={() => handleApprovePayment(roommate._id, roommate.name)}
+                          style={{
+                            width: "auto",
+                            padding: "0.5rem 1rem",
+                            background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                            border: "none",
+                            color: "white",
+                            borderRadius: "6px",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          Approve Payment (Reset to 0)
+                        </button>
+                      </div>
+                    )}
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto",
+                        gap: "0.75rem",
+                        alignItems: "center",
+                      }}
+                    >
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Pending amount"
+                        value={pendingAmounts[roommate._id] ?? ""}
+                        onChange={(e) => handlePendingAmountChange(roommate._id, e.target.value)}
+                      />
+                      <button
+                        onClick={() => handleUpdatePendingAmount(roommate._id, roommate.name)}
+                        style={{
+                          width: "auto",
+                          padding: "0.75rem 1rem",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Save Amount
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto auto",
+                        gap: "0.75rem",
+                        alignItems: "center",
+                        marginTop: "0.75rem",
+                      }}
+                    >
+                      <input
+                        type="tel"
+                        placeholder="Mobile Number"
+                        value={phoneNumbers[roommate._id] ?? roommate.phoneNumber ?? ""}
+                        onChange={(e) => handlePhoneChange(roommate._id, e.target.value)}
+                      />
+                      <button
+                        onClick={() => handleUpdatePhone(roommate._id, roommate.name)}
+                        style={{
+                          width: "auto",
+                          padding: "0.75rem 1rem",
+                          whiteSpace: "nowrap",
+                          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        }}
+                      >
+                        {roommate.phoneNumber ? "Update Phone" : "Save Phone"}
+                      </button>
+                      <button
+                        onClick={() => handleSendSMS(roommate)}
+                        disabled={!roommate.phoneNumber}
+                        style={{
+                          width: "auto",
+                          padding: "0.75rem 1rem",
+                          whiteSpace: "nowrap",
+                          background: roommate.phoneNumber 
+                            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" 
+                            : "#4a4a5a",
+                          cursor: roommate.phoneNumber ? "pointer" : "not-allowed",
+                          opacity: roommate.phoneNumber ? 1 : 0.5,
+                        }}
+                      >
+                        💬 Send SMS
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto",
+                        gap: "0.75rem",
+                        alignItems: "center",
+                        marginTop: "0.75rem",
+                      }}
+                    >
+                      <input
+                        type="password"
+                        placeholder="Set New Password"
+                        value={newRoommatePasswords[roommate._id] ?? ""}
+                        onChange={(e) => handlePasswordChange(roommate._id, e.target.value)}
+                      />
+                      <button
+                        onClick={() => handleUpdatePassword(roommate._id, roommate.name)}
+                        style={{
+                          width: "auto",
+                          padding: "0.75rem 1rem",
+                          whiteSpace: "nowrap",
+                          background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                        }}
+                      >
+                        Change Password
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr auto",
+                        gap: "0.75rem",
+                        alignItems: "center",
+                        marginTop: "0.75rem",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Title / Reason (e.g. Water)"
+                        value={additionalTitles[roommate._id] ?? ""}
+                        onChange={(e) => handleAdditionalTitleChange(roommate._id, e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Amount (- to deduct)"
+                        value={additionalAmounts[roommate._id] ?? ""}
+                        onChange={(e) => handleAdditionalAmountChange(roommate._id, e.target.value)}
+                      />
+                      <button
+                        onClick={() => handleAddPendingAmount(roommate._id, roommate.name)}
+                        style={{
+                          width: "auto",
+                          padding: "0.75rem 1rem",
+                          whiteSpace: "nowrap",
+                          background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                        }}
+                      >
+                        Add Amount
+                      </button>
+                    </div>
+
+                    {roommate.history && roommate.history.length > 0 && (
+                      <div
+                        style={{
+                          marginTop: "1rem",
+                          padding: "1rem",
+                          background: "rgba(20, 20, 35, 0.6)",
+                          border: "1px solid rgba(102, 126, 234, 0.15)",
+                          borderRadius: "10px",
+                          color: "#e0e0e0",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        <strong style={{ display: "block", marginBottom: "0.5rem", color: "#667eea", fontWeight: "600" }}>
+                          Pending Amount Breakdown:
+                        </strong>
+                        <ul style={{ margin: "0", paddingLeft: "1.2rem" }}>
+                          {roommate.history.map((item, idx) => (
+                            <li key={item._id || idx} style={{ marginBottom: "0.4rem" }}>
+                              <span style={{ fontWeight: "600" }}>{item.title}</span>: +₹
+                              {Number(item.amount).toFixed(2)}{" "}
+                              <span style={{ fontSize: "0.75rem", color: "#999" }}>
+                                ({new Date(item.date).toLocaleDateString()})
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
