@@ -100,6 +100,26 @@ function RoommateAdmin({ user }) {
     window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
   };
 
+  const handleSendWhatsApp = (roommate) => {
+    const phone = roommate.phoneNumber;
+    const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
+    const targetPhone = cleanPhone && cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+    const upi = user.leaderUpi || "tkdarshankumar@oksbi";
+
+    let balancesText = roommates
+      .map((r) => `- ${r.name}: Rs ${Number(r.pendingAmount || 0).toFixed(2)}`)
+      .join("\n");
+
+    const message = `Hi ${roommate.name}! 🏠\n\nHere is the current Roomie expense summary:\n${balancesText}\n\nUPI ID for payments: ${upi}\n\nThank you!`;
+
+    const whatsappUrl = targetPhone
+      ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, "_blank");
+  };
+
   const handleUpdatePassword = async (roommateId, roommateName) => {
     const pass = newRoommatePasswords[roommateId];
     if (!pass || !pass.trim()) {
@@ -413,6 +433,28 @@ function RoommateAdmin({ user }) {
                         }}
                       >
                         💬 Send SMS
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "0.75rem",
+                        marginTop: "0.75rem",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleSendWhatsApp(roommate)}
+                        style={{
+                          flex: "1 1 100%",
+                          background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+                          color: "#fff",
+                          fontWeight: "700",
+                          boxShadow: "0 4px 15px rgba(37, 211, 102, 0.25)",
+                        }}
+                      >
+                        💬 Send on WhatsApp
                       </button>
                     </div>
 
