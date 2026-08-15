@@ -43,7 +43,7 @@ const addExpense = async (req, res) => {
 
     if (paidBy === leader.name) {
       const roommates = await Roommate.find({ addedBy: leader._id });
-      const shareAmount = roommates.length > 0 ? expenseAmount / roommates.length : 0;
+      const shareAmount = roommates.length > 0 ? expenseAmount / (roommates.length + 1) : 0;
 
       if (shareAmount > 0) {
         await Roommate.updateMany(
@@ -137,7 +137,7 @@ const deleteExpense = async (req, res) => {
     // Adjust roommate pending amounts if the deleted expense was paid by the leader
     if (leader && expense.paidBy === leader.name) {
       const roommates = await Roommate.find({ addedBy: leader._id });
-      const shareAmount = roommates.length > 0 ? expense.amount / roommates.length : 0;
+      const shareAmount = roommates.length > 0 ? expense.amount / (roommates.length + 1) : 0;
 
       if (shareAmount > 0) {
         for (const roommate of roommates) {
