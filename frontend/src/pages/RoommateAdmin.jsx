@@ -100,23 +100,17 @@ function RoommateAdmin({ user }) {
     window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
   };
 
-  const handleSendWhatsApp = (roommate) => {
-    const phone = roommate.phoneNumber;
-    const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
-    const targetPhone = cleanPhone && cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-
+  const handleSendGroupWhatsApp = () => {
     const upi = user.leaderUpi || "tkdarshankumar@oksbi";
-
+    const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    
     let balancesText = roommates
       .map((r) => `- ${r.name}: Rs ${Number(r.pendingAmount || 0).toFixed(2)}`)
       .join("\n");
 
-    const message = `Hi ${roommate.name}! 🏠\n\nHere is the current Roomie expense summary:\n${balancesText}\n\nUPI ID for payments: ${upi}\n\nThank you!`;
+    const message = `🏠 *Roomie Expenses Summary - ${dateStr}*\n\n${balancesText}\n\nUPI ID for payments: *${upi}*\n\nThank you!`;
 
-    const whatsappUrl = targetPhone
-      ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`
-      : `https://wa.me/?text=${encodeURIComponent(message)}`;
-
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -250,6 +244,26 @@ function RoommateAdmin({ user }) {
     <div className="container" style={{ paddingBottom: "80px" }}>
       <h1>Manage Roommates</h1>
       <h2 style={{ marginTop: "1rem", color: "var(--accent-purple)" }}>Pending Amounts</h2>
+
+      {roommates.length > 0 && (
+        <button
+          onClick={handleSendGroupWhatsApp}
+          style={{
+            marginTop: "0.5rem",
+            marginBottom: "1.25rem",
+            background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+            color: "#fff",
+            fontWeight: "700",
+            boxShadow: "0 4px 15px rgba(37, 211, 102, 0.25)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem"
+          }}
+        >
+          💬 Send Group Summary on WhatsApp
+        </button>
+      )}
 
       {loading ? (
         <p>Loading roommates...</p>
@@ -435,29 +449,6 @@ function RoommateAdmin({ user }) {
                         💬 Send SMS
                       </button>
                     </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: "0.75rem",
-                        marginTop: "0.75rem",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleSendWhatsApp(roommate)}
-                        style={{
-                          flex: "1 1 100%",
-                          background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
-                          color: "#fff",
-                          fontWeight: "700",
-                          boxShadow: "0 4px 15px rgba(37, 211, 102, 0.25)",
-                        }}
-                      >
-                        💬 Send on WhatsApp
-                      </button>
-                    </div>
-
                     <div
                       style={{
                         display: "flex",
