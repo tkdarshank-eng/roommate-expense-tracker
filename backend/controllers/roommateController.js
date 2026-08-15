@@ -167,7 +167,13 @@ const deleteRoommate = async (req, res) => {
 
 const registerLeader = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, registrationPassphrase } = req.body;
+    const requiredPassphrase = process.env.REGISTRATION_PASSPHRASE || "darshan_roomie_secret_998";
+
+    if (registrationPassphrase !== requiredPassphrase) {
+      return res.status(403).json({ message: "Registration is restricted. Valid passphrase is required." });
+    }
+
     if (!username || !username.trim() || !password || !password.trim()) {
       return res.status(400).json({ message: "Username and password are required" });
     }
