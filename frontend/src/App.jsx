@@ -6,6 +6,7 @@ import Admin from "./pages/Admin";
 import RoommateAdmin from "./pages/RoommateAdmin";
 import Expenses from "./pages/Expenses";
 import MonthlyExpenses from "./pages/MonthlyExpenses";
+import Settings from "./pages/Settings";
 
 const API_BASE =
   window.location.hostname === "localhost" ||
@@ -56,6 +57,22 @@ function ProtectedRoommateRoute({ user }) {
   }
 
   return <RoommateAdmin user={user} />;
+}
+
+function ProtectedSettingsRoute({ user, onLogout }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || user.role !== "leader") {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  if (!user || user.role !== "leader") {
+    return null;
+  }
+
+  return <Settings user={user} onLogout={onLogout} />;
 }
 
 function Navigation({ user, onLogout }) {
@@ -169,6 +186,7 @@ function Navigation({ user, onLogout }) {
             <>
               <Link to="/admin" className={currentPath === "/admin" ? "active" : ""}>➕ Add Expense</Link>
               <Link to="/roommates" className={currentPath === "/roommates" ? "active" : ""}>👥 Manage Roommates</Link>
+              <Link to="/settings" className={currentPath === "/settings" ? "active" : ""}>⚙️ Settings</Link>
             </>
           )}
         </div>
@@ -413,14 +431,10 @@ function Navigation({ user, onLogout }) {
             <span className="mobile-nav-icon">👥</span>
             <span>Roommates</span>
           </Link>
-          <div 
-            onClick={onLogout} 
-            className="mobile-nav-link" 
-            style={{ cursor: "pointer" }}
-          >
-            <span className="mobile-nav-icon">🚪</span>
-            <span>Logout</span>
-          </div>
+          <Link to="/settings" className={`mobile-nav-link ${currentPath === "/settings" ? "active" : ""}`}>
+            <span className="mobile-nav-icon">⚙️</span>
+            <span>Settings</span>
+          </Link>
         </div>
       )}
 
@@ -526,6 +540,7 @@ function App() {
         <Route path="/admin" element={<ProtectedAdminRoute user={user} />} />
         <Route path="/roommates" element={<ProtectedRoommateRoute user={user} />} />
         <Route path="/monthly-expenses" element={<MonthlyExpenses user={user} />} />
+        <Route path="/settings" element={<ProtectedSettingsRoute user={user} onLogout={handleLogout} />} />
       </Routes>
     </BrowserRouter>
   );
