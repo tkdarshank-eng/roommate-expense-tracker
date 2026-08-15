@@ -103,114 +103,133 @@ function Admin({ user }) {
 
   return (
     <div className="container">
-      <h1>💰 Add New Expense</h1>
+      <div className="card" style={{ marginBottom: "1.5rem" }}>
+        <h1>💰 Add New Expense</h1>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginTop: "-1rem", marginBottom: "1.5rem" }}>
+          Record a new shared expense. It will be split equally among all roommates.
+        </p>
 
-      <div className="form-group">
-        <label>Expense Title</label>
-        <input
-          type="text"
-          placeholder="e.g., Rent, Groceries, etc."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <div className="form-group">
+          <label>Expense Title</label>
+          <input
+            type="text"
+            placeholder="e.g., Rent, Groceries, Electricity"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Select Who Paid</label>
+          <select
+            value={paidBy}
+            onChange={(e) => setPaidBy(e.target.value)}
+          >
+            <option value="">Choose a roommate...</option>
+            <option value={user.name}>{user.name} (Leader)</option>
+            {roommates.map((roommate) => (
+              <option
+                key={roommate._id}
+                value={roommate.name}
+              >
+                {roommate.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Amount (₹)</label>
+          <input
+            type="number"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: "2rem" }}>
+          <label>Upload Bill / Receipt (Optional)</label>
+          <label 
+            htmlFor="bill-file-input" 
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1.5rem",
+              background: "rgba(255, 255, 255, 0.01)",
+              border: "1.5px dashed rgba(108, 92, 231, 0.3)",
+              borderRadius: "14px",
+              color: "#b2bec3",
+              cursor: "pointer",
+              textAlign: "center",
+              transition: "all 0.25s ease",
+              marginTop: "0.5rem"
+            }}
+          >
+            <span style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>📁</span>
+            <span style={{ fontWeight: "700", fontSize: "0.85rem", color: "#fff" }}>Click to upload receipt</span>
+            <span style={{ fontSize: "0.75rem", opacity: 0.8, marginTop: "0.25rem" }}>JPG, PNG (max 5MB)</span>
+          </label>
+          <input
+            id="bill-file-input"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: "none" }}
+          />
+          {compressing && <p style={{ fontSize: "0.85rem", color: "#f093fb", marginTop: "0.5rem", textAlign: "center" }}>⏳ Compressing image...</p>}
+          {billImage && (
+            <div style={{ marginTop: "1.25rem", textAlign: "center", position: "relative", display: "inline-block" }}>
+              <img
+                src={billImage}
+                alt="Bill Preview"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "200px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
+                }}
+              />
+              <button
+                onClick={() => {
+                  setBillImage("");
+                  const fileInput = document.getElementById("bill-file-input");
+                  if (fileInput) fileInput.value = "";
+                }}
+                style={{
+                  position: "absolute",
+                  top: "-10px",
+                  right: "-10px",
+                  background: "#f5576c",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "28px",
+                  height: "28px",
+                  minHeight: "auto",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                  lineHeight: "28px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button onClick={addExpense} style={{ height: "46px" }}>
+          ✨ Add Expense
+        </button>
       </div>
-
-      <div className="form-group">
-        <label>Select Who Paid</label>
-        <select
-          value={paidBy}
-          onChange={(e) => setPaidBy(e.target.value)}
-        >
-          <option value="">Choose a roommate...</option>
-          <option value={user.name}>{user.name} (Leader)</option>
-          {roommates.map((roommate) => (
-            <option
-              key={roommate._id}
-              value={roommate.name}
-            >
-              {roommate.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label>Amount (₹)</label>
-        <input
-          type="number"
-          placeholder="0.00"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-      </div>
-
-      <div className="form-group" style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", marginBottom: "0.5rem" }}>Upload Bill / Receipt (Optional)</label>
-        <input
-          id="bill-file-input"
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          style={{
-            display: "block",
-            width: "100%",
-            padding: "0.5rem",
-            background: "rgba(255, 255, 255, 0.05)",
-            border: "1px dashed rgba(255, 255, 255, 0.2)",
-            borderRadius: "8px",
-            color: "#ccc",
-            cursor: "pointer",
-          }}
-        />
-        {compressing && <p style={{ fontSize: "0.85rem", color: "#f093fb", marginTop: "0.5rem" }}>⏳ Compressing image...</p>}
-        {billImage && (
-          <div style={{ marginTop: "1rem", position: "relative", display: "inline-block" }}>
-            <img
-              src={billImage}
-              alt="Bill Preview"
-              style={{
-                maxWidth: "150px",
-                maxHeight: "150px",
-                borderRadius: "8px",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
-              }}
-            />
-            <button
-              onClick={() => {
-                setBillImage("");
-                const fileInput = document.getElementById("bill-file-input");
-                if (fileInput) fileInput.value = "";
-              }}
-              style={{
-                position: "absolute",
-                top: "-8px",
-                right: "-8px",
-                background: "#f5576c",
-                color: "white",
-                border: "none",
-                borderRadius: "50%",
-                width: "24px",
-                height: "24px",
-                cursor: "pointer",
-                fontSize: "0.75rem",
-                lineHeight: "24px",
-                padding: "0",
-                textAlign: "center",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </div>
-
-      <button onClick={addExpense}>
-        ✨ Add Expense
-      </button>
     </div>
   );
 }

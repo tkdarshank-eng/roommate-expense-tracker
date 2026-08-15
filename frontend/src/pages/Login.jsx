@@ -90,25 +90,27 @@ function Login({ onLogin }) {
           <div
             style={{
               display: "flex",
-              background: "rgba(255, 255, 255, 0.05)",
-              borderRadius: "8px",
+              background: "rgba(255, 255, 255, 0.03)",
+              borderRadius: "12px",
               padding: "4px",
               marginBottom: "1.5rem",
-              border: "1px solid rgba(255, 255, 255, 0.1)"
+              border: "1px solid rgba(255, 255, 255, 0.05)"
             }}
           >
             <button
               style={{
                 flex: 1,
-                background: isLeaderRole ? "#667eea" : "transparent",
+                background: isLeaderRole ? "var(--accent-gradient-purple)" : "transparent",
                 border: "none",
                 color: "white",
-                padding: "0.5rem",
-                borderRadius: "6px",
+                padding: "0.6rem",
+                borderRadius: "10px",
                 cursor: "pointer",
-                fontWeight: "600",
+                fontWeight: "700",
                 fontSize: "0.9rem",
-                transition: "all 0.2s"
+                transition: "all 0.25s ease",
+                minHeight: "38px",
+                boxShadow: isLeaderRole ? "0 4px 12px rgba(108, 92, 231, 0.25)" : "none"
               }}
               onClick={() => {
                 setIsLeaderRole(true);
@@ -120,15 +122,17 @@ function Login({ onLogin }) {
             <button
               style={{
                 flex: 1,
-                background: !isLeaderRole ? "#667eea" : "transparent",
+                background: !isLeaderRole ? "var(--accent-gradient-purple)" : "transparent",
                 border: "none",
                 color: "white",
-                padding: "0.5rem",
-                borderRadius: "6px",
+                padding: "0.6rem",
+                borderRadius: "10px",
                 cursor: "pointer",
-                fontWeight: "600",
+                fontWeight: "700",
                 fontSize: "0.9rem",
-                transition: "all 0.2s"
+                transition: "all 0.25s ease",
+                minHeight: "38px",
+                boxShadow: !isLeaderRole ? "0 4px 12px rgba(108, 92, 231, 0.25)" : "none"
               }}
               onClick={() => {
                 setIsLeaderRole(false);

@@ -280,40 +280,40 @@ function RoommateAdmin({ user }) {
     <div className="container">
       <h1>Manage Roommates</h1>
 
-      <div
-        style={{
-          padding: "1.5rem",
-          background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
-          border: "1px solid rgba(102, 126, 234, 0.2)",
-          borderRadius: "16px",
-          marginBottom: "2rem",
-          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
-          backdropFilter: "blur(10px)",
-        }}
-      >
-        <h2 style={{ color: "#fff", fontSize: "1.2rem", marginBottom: "0.5rem" }}>💳 Configure UPI Details</h2>
-        <p style={{ color: "#bbb", fontSize: "0.85rem", marginBottom: "1rem" }}>
+      <div className="card">
+        <h2>💳 Configure UPI Details</h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
           Set your UPI ID so roommates can pay their pending amounts directly to you using the QR code.
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.75rem", alignItems: "center" }}>
+        <div 
+          style={{ 
+            display: "flex", 
+            flexWrap: "wrap", 
+            gap: "0.75rem", 
+            alignItems: "center" 
+          }}
+        >
           <input
             type="text"
             placeholder="e.g., yourname@oksbi"
             value={upiId}
             onChange={(e) => setUpiId(e.target.value)}
-            style={{ margin: 0 }}
+            style={{ flex: "1 1 200px", margin: 0 }}
           />
           <button
             onClick={handleUpdateUpi}
             style={{
+              flex: "1 1 auto",
               width: "auto",
               padding: "0.75rem 1.5rem",
-              background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+              background: "var(--success-gradient)",
               border: "none",
               color: "white",
-              borderRadius: "8px",
+              borderRadius: "12px",
               fontWeight: "700",
               cursor: "pointer",
+              minHeight: "44px",
+              boxShadow: "0 4px 15px rgba(0, 184, 148, 0.2)"
             }}
           >
             Save UPI ID
@@ -321,26 +321,32 @@ function RoommateAdmin({ user }) {
         </div>
       </div>
 
-      <div className="form-group">
-        <label>Add New Roommate</label>
-        <input
-          type="text"
-          placeholder="Enter roommate name"
-          value={newRoommate}
-          onChange={(e) => setNewRoommate(e.target.value)}
-          style={{ marginBottom: "1rem" }}
-        />
-        <input
-          type="password"
-          placeholder="Enter password for roommate"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <div className="card">
+        <h2>👤 Add New Roommate</h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
+          Create an account for a new roommate so they can log in and view their balance.
+        </p>
+        <div className="form-group">
+          <label>Roommate Name</label>
+          <input
+            type="text"
+            placeholder="Enter roommate name"
+            value={newRoommate}
+            onChange={(e) => setNewRoommate(e.target.value)}
+            style={{ marginBottom: "1rem" }}
+          />
+          <label>Password for Roommate</label>
+          <input
+            type="password"
+            placeholder="Enter password for roommate"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button onClick={handleAddRoommate}>Add Roommate</button>
       </div>
 
-      <button onClick={handleAddRoommate}>Add Roommate</button>
-
-      <h2 style={{ marginTop: "2rem", color: "#667eea" }}>Pending Amounts</h2>
+      <h2 style={{ marginTop: "2rem", color: "var(--accent-purple)" }}>Pending Amounts</h2>
 
       {loading ? (
         <p>Loading roommates...</p>
@@ -354,11 +360,11 @@ function RoommateAdmin({ user }) {
               <div
                 key={roommate._id}
                 style={{
-                  padding: "1rem 1.5rem",
+                  padding: "1.2rem",
                   background: isExpanded 
-                    ? "linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)" 
-                    : "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)",
-                  border: isExpanded ? "1px solid rgba(102, 126, 234, 0.4)" : "1px solid rgba(102, 126, 234, 0.15)",
+                    ? "linear-gradient(135deg, rgba(108, 92, 231, 0.15) 0%, rgba(224, 86, 253, 0.1) 100%)" 
+                    : "rgba(22, 22, 40, 0.6)",
+                  border: isExpanded ? "1px solid rgba(108, 92, 231, 0.4)" : "1px solid rgba(255, 255, 255, 0.05)",
                   borderRadius: "16px",
                   marginBottom: "1.2rem",
                   boxShadow: isExpanded ? "0 10px 30px rgba(0, 0, 0, 0.3)" : "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -379,12 +385,12 @@ function RoommateAdmin({ user }) {
                     userSelect: "none"
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#fff" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "1.15rem", fontWeight: "700", color: "#fff" }}>
                       {roommate.name}
                     </span>
-                    <span style={{ color: "#667eea", fontSize: "0.85rem", fontWeight: "bold" }}>
-                      {isExpanded ? "▲ Hide Actions" : "▼ Show Actions"}
+                    <span style={{ color: "var(--accent-purple)", fontSize: "0.8rem", fontWeight: "bold" }}>
+                      {isExpanded ? "▲ Hide" : "▼ Actions"}
                     </span>
                   </div>
                   <div
@@ -395,18 +401,12 @@ function RoommateAdmin({ user }) {
                     }}
                     onClick={(e) => e.stopPropagation()} // Prevent toggling when clicking action buttons
                   >
-                    <span style={{ color: "#f5576c", fontWeight: "700" }}>
-                      Pending: Rs {Number(roommate.pendingAmount || 0).toFixed(2)}
+                    <span style={{ color: "var(--accent-pink)", fontWeight: "800", fontSize: "0.95rem" }}>
+                      Rs {Number(roommate.pendingAmount || 0).toFixed(2)}
                     </span>
                     <button
                       onClick={() => handleDeleteRoommate(roommate._id, roommate.name)}
-                      style={{
-                        width: "auto",
-                        padding: "0.4rem 0.75rem",
-                        background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
-                        fontSize: "0.8rem",
-                        whiteSpace: "nowrap",
-                      }}
+                      className="delete-btn"
                     >
                       Delete
                     </button>
@@ -419,11 +419,11 @@ function RoommateAdmin({ user }) {
                     {roommate.hasPaidRequest && (
                       <div
                         style={{
-                          background: "rgba(245, 87, 108, 0.15)",
-                          border: "1px solid rgba(245, 87, 108, 0.3)",
+                          background: "rgba(0, 184, 148, 0.15)",
+                          border: "1px solid rgba(0, 184, 148, 0.3)",
                           padding: "1rem",
-                          borderRadius: "10px",
-                          marginBottom: "1rem",
+                          borderRadius: "12px",
+                          marginBottom: "1.25rem",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
@@ -431,7 +431,7 @@ function RoommateAdmin({ user }) {
                           flexWrap: "wrap",
                         }}
                       >
-                        <span style={{ color: "#f5576c", fontWeight: "600", fontSize: "0.9rem" }}>
+                        <span style={{ color: "#00b894", fontWeight: "700", fontSize: "0.85rem" }}>
                           ⚠️ {roommate.name} has submitted a payment request!
                         </span>
                         <button
@@ -439,24 +439,26 @@ function RoommateAdmin({ user }) {
                           style={{
                             width: "auto",
                             padding: "0.5rem 1rem",
-                            background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                            background: "var(--success-gradient)",
                             border: "none",
                             color: "white",
-                            borderRadius: "6px",
+                            borderRadius: "8px",
                             fontWeight: "700",
                             cursor: "pointer",
-                            fontSize: "0.85rem",
+                            fontSize: "0.8rem",
+                            minHeight: "36px",
+                            boxShadow: "0 4px 10px rgba(0, 184, 148, 0.2)"
                           }}
                         >
-                          Approve Payment (Reset to 0)
+                          Approve (Reset to 0)
                         </button>
                       </div>
                     )}
 
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr auto",
+                        display: "flex",
+                        flexWrap: "wrap",
                         gap: "0.75rem",
                         alignItems: "center",
                       }}
@@ -468,10 +470,12 @@ function RoommateAdmin({ user }) {
                         placeholder="Pending amount"
                         value={pendingAmounts[roommate._id] ?? ""}
                         onChange={(e) => handlePendingAmountChange(roommate._id, e.target.value)}
+                        style={{ flex: "1 1 150px" }}
                       />
                       <button
                         onClick={() => handleUpdatePendingAmount(roommate._id, roommate.name)}
                         style={{
+                          flex: "1 1 auto",
                           width: "auto",
                           padding: "0.75rem 1rem",
                           whiteSpace: "nowrap",
@@ -483,8 +487,8 @@ function RoommateAdmin({ user }) {
 
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr auto auto",
+                        display: "flex",
+                        flexWrap: "wrap",
                         gap: "0.75rem",
                         alignItems: "center",
                         marginTop: "0.75rem",
@@ -495,14 +499,16 @@ function RoommateAdmin({ user }) {
                         placeholder="Mobile Number"
                         value={phoneNumbers[roommate._id] ?? roommate.phoneNumber ?? ""}
                         onChange={(e) => handlePhoneChange(roommate._id, e.target.value)}
+                        style={{ flex: "1 1 100%" }}
                       />
                       <button
                         onClick={() => handleUpdatePhone(roommate._id, roommate.name)}
                         style={{
+                          flex: "1 1 120px",
                           width: "auto",
                           padding: "0.75rem 1rem",
                           whiteSpace: "nowrap",
-                          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                          background: "var(--accent-gradient-purple)",
                         }}
                       >
                         {roommate.phoneNumber ? "Update Phone" : "Save Phone"}
@@ -511,14 +517,16 @@ function RoommateAdmin({ user }) {
                         onClick={() => handleSendSMS(roommate)}
                         disabled={!roommate.phoneNumber}
                         style={{
+                          flex: "1 1 120px",
                           width: "auto",
                           padding: "0.75rem 1rem",
                           whiteSpace: "nowrap",
                           background: roommate.phoneNumber 
-                            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" 
-                            : "#4a4a5a",
+                            ? "linear-gradient(135deg, #00b894 0%, #00cec9 100%)" 
+                            : "#2e2e40",
                           cursor: roommate.phoneNumber ? "pointer" : "not-allowed",
                           opacity: roommate.phoneNumber ? 1 : 0.5,
+                          boxShadow: roommate.phoneNumber ? "0 4px 15px rgba(0, 184, 148, 0.2)" : "none"
                         }}
                       >
                         💬 Send SMS
@@ -527,8 +535,8 @@ function RoommateAdmin({ user }) {
 
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr auto",
+                        display: "flex",
+                        flexWrap: "wrap",
                         gap: "0.75rem",
                         alignItems: "center",
                         marginTop: "0.75rem",
@@ -539,14 +547,16 @@ function RoommateAdmin({ user }) {
                         placeholder="Set New Password"
                         value={newRoommatePasswords[roommate._id] ?? ""}
                         onChange={(e) => handlePasswordChange(roommate._id, e.target.value)}
+                        style={{ flex: "1 1 150px" }}
                       />
                       <button
                         onClick={() => handleUpdatePassword(roommate._id, roommate.name)}
                         style={{
+                          flex: "1 1 auto",
                           width: "auto",
                           padding: "0.75rem 1rem",
                           whiteSpace: "nowrap",
-                          background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                          background: "var(--accent-gradient-pink)",
                         }}
                       >
                         Change Password
@@ -555,8 +565,8 @@ function RoommateAdmin({ user }) {
 
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr auto",
+                        display: "flex",
+                        flexWrap: "wrap",
                         gap: "0.75rem",
                         alignItems: "center",
                         marginTop: "0.75rem",
@@ -567,20 +577,21 @@ function RoommateAdmin({ user }) {
                         placeholder="Title / Reason (e.g. Water)"
                         value={additionalTitles[roommate._id] ?? ""}
                         onChange={(e) => handleAdditionalTitleChange(roommate._id, e.target.value)}
+                        style={{ flex: "1 1 130px" }}
                       />
                       <input
                         type="text"
                         placeholder="Amount (- to deduct)"
                         value={additionalAmounts[roommate._id] ?? ""}
                         onChange={(e) => handleAdditionalAmountChange(roommate._id, e.target.value)}
+                        style={{ flex: "1 1 130px" }}
                       />
                       <button
                         onClick={() => handleAddPendingAmount(roommate._id, roommate.name)}
                         style={{
-                          width: "auto",
-                          padding: "0.75rem 1rem",
-                          whiteSpace: "nowrap",
-                          background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                          flex: "1 1 100%",
+                          background: "var(--success-gradient)",
+                          boxShadow: "0 4px 15px rgba(0, 184, 148, 0.25)"
                         }}
                       >
                         Add Amount
@@ -592,22 +603,24 @@ function RoommateAdmin({ user }) {
                         style={{
                           marginTop: "1rem",
                           padding: "1rem",
-                          background: "rgba(20, 20, 35, 0.6)",
-                          border: "1px solid rgba(102, 126, 234, 0.15)",
-                          borderRadius: "10px",
-                          color: "#e0e0e0",
+                          background: "rgba(10, 10, 20, 0.4)",
+                          border: "1px solid rgba(255, 255, 255, 0.05)",
+                          borderRadius: "12px",
+                          color: "var(--text-secondary)",
                           fontSize: "0.85rem",
                         }}
                       >
-                        <strong style={{ display: "block", marginBottom: "0.5rem", color: "#667eea", fontWeight: "600" }}>
+                        <strong style={{ display: "block", marginBottom: "0.5rem", color: "var(--accent-purple)", fontWeight: "700" }}>
                           Pending Amount Breakdown:
                         </strong>
                         <ul style={{ margin: "0", paddingLeft: "1.2rem" }}>
                           {roommate.history.map((item, idx) => (
                             <li key={item._id || idx} style={{ marginBottom: "0.4rem" }}>
-                              <span style={{ fontWeight: "600" }}>{item.title}</span>: +₹
-                              {Number(item.amount).toFixed(2)}{" "}
-                              <span style={{ fontSize: "0.75rem", color: "#999" }}>
+                              <span style={{ fontWeight: "700" }}>{item.title}</span>: 
+                              <span style={{ color: item.amount < 0 ? "#ff7675" : "#00b894", marginLeft: "4px", fontWeight: "700" }}>
+                                {item.amount < 0 ? "" : "+"}₹{Number(item.amount).toFixed(2)}
+                              </span>{" "}
+                              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "4px" }}>
                                 ({new Date(item.date).toLocaleDateString()})
                               </span>
                             </li>

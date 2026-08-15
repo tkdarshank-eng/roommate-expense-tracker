@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import RoommateAdmin from "./pages/RoommateAdmin";
 import Expenses from "./pages/Expenses";
+import MonthlyExpenses from "./pages/MonthlyExpenses";
 
 const API_BASE =
   window.location.hostname === "localhost" ||
@@ -60,8 +61,9 @@ function ProtectedRoommateRoute({ user }) {
 function Navigation({ user, onLogout }) {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
   const notifiedIdsRef = useRef(new Set());
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const fetchNotifications = async () => {
     if (!user || user.role !== "user") return;
@@ -140,12 +142,6 @@ function Navigation({ user, onLogout }) {
     }
   }, [user]);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 600);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const toggleDropdown = async () => {
@@ -161,36 +157,155 @@ function Navigation({ user, onLogout }) {
   };
 
   return (
-    <nav>
-      <div className="nav-left">
-        <Link to="/">📊 View Expenses</Link>
-        {user && user.role === "leader" && (
-          <>
-            <Link to="/admin">➕ Add Expense</Link>
-            <Link to="/roommates">👥 Manage Roommates</Link>
-          </>
-        )}
-      </div>
-      <div className="nav-right">
-        {user && user.role === "user" && (
-          <div style={{ position: "relative", width: "100%", marginBottom: "0.5rem" }}>
+    <>
+      {/* Desktop Sidebar Navigation */}
+      <nav>
+        <div className="nav-left">
+          <Link to="/" className={currentPath === "/" ? "active" : ""}>📊 View Expenses</Link>
+          {user && user.role === "user" && (
+            <Link to="/monthly-expenses" className={currentPath === "/monthly-expenses" ? "active" : ""}>📅 Monthly Expenses</Link>
+          )}
+          {user && user.role === "leader" && (
+            <>
+              <Link to="/admin" className={currentPath === "/admin" ? "active" : ""}>➕ Add Expense</Link>
+              <Link to="/roommates" className={currentPath === "/roommates" ? "active" : ""}>👥 Manage Roommates</Link>
+            </>
+          )}
+        </div>
+        <div className="nav-right">
+          {user && user.role === "user" && (
+            <div style={{ position: "relative", width: "100%", marginBottom: "0.5rem" }}>
+              <button
+                onClick={toggleDropdown}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  background: unreadCount > 0 ? "rgba(108, 92, 231, 0.25)" : "rgba(255, 255, 255, 0.05)",
+                  border: unreadCount > 0 ? "1px solid rgba(108, 92, 231, 0.5)" : "1px solid rgba(255, 255, 255, 0.1)",
+                  padding: "0.6rem",
+                  borderRadius: "8px",
+                  color: "white",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "0.9rem",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                🔔 Alerts
+                {unreadCount > 0 && (
+                  <span
+                    style={{
+                      background: "#ff4757",
+                      color: "white",
+                      fontSize: "0.75rem",
+                      padding: "2px 6px",
+                      borderRadius: "10px",
+                      fontWeight: "900",
+                    }}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showDropdown && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "100%",
+                    left: 0,
+                    width: "100%",
+                    background: "rgba(30, 30, 50, 0.98)",
+                    backdropFilter: "blur(20px)",
+                    border: "1px solid rgba(108, 92, 231, 0.2)",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+                    zIndex: 1100,
+                    maxHeight: "260px",
+                    overflowY: "auto",
+                    padding: "0.5rem",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "0.5rem",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "#c0c0c0",
+                      fontSize: "0.85rem",
+                      fontWeight: "700",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span>Recent Alerts</span>
+                    <span style={{ cursor: "pointer", color: "#6c5ce7" }} onClick={() => setShowDropdown(false)}>
+                      ✕ Close
+                    </span>
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div style={{ padding: "1rem", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
+                      No notifications yet
+                    </div>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n._id}
+                        style={{
+                          padding: "0.75rem",
+                          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                          fontSize: "0.8rem",
+                          color: n.read ? "#aaa" : "#fff",
+                          background: n.read ? "transparent" : "rgba(108, 92, 231, 0.08)",
+                          borderRadius: "6px",
+                          marginBottom: "4px",
+                          lineHeight: "1.3",
+                          textAlign: "left"
+                        }}
+                      >
+                        <div>{n.message}</div>
+                        <div style={{ fontSize: "0.7rem", color: "#666", marginTop: "4px" }}>
+                          {new Date(n.createdAt).toLocaleDateString()} {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          <span className="user-info">👤 {user.name} ({user.role})</span>
+          <button className="logout-btn" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Top Header */}
+      <div className="mobile-top-header">
+        <span className="mobile-brand-title">🏠 Roomie</span>
+        <div className="mobile-top-actions">
+          {user && user.role === "user" && (
             <button
               onClick={toggleDropdown}
               style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                background: unreadCount > 0 ? "rgba(102, 126, 234, 0.25)" : "rgba(255, 255, 255, 0.05)",
-                border: unreadCount > 0 ? "1px solid rgba(102, 126, 234, 0.5)" : "1px solid rgba(255, 255, 255, 0.1)",
-                padding: "0.6rem",
+                background: unreadCount > 0 ? "rgba(108, 92, 231, 0.2)" : "rgba(255, 255, 255, 0.05)",
+                border: unreadCount > 0 ? "1px solid rgba(108, 92, 231, 0.4)" : "1px solid rgba(255, 255, 255, 0.1)",
+                padding: "0.4rem 0.8rem",
                 borderRadius: "8px",
                 color: "white",
                 cursor: "pointer",
                 fontWeight: "600",
-                fontSize: "0.9rem",
-                transition: "all 0.3s ease",
+                fontSize: "0.85rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                minHeight: "36px",
+                width: "auto",
+                boxShadow: "none",
               }}
             >
               🔔 Alerts
@@ -199,8 +314,8 @@ function Navigation({ user, onLogout }) {
                   style={{
                     background: "#ff4757",
                     color: "white",
-                    fontSize: "0.75rem",
-                    padding: "2px 6px",
+                    fontSize: "0.7rem",
+                    padding: "1px 5px",
                     borderRadius: "10px",
                     fontWeight: "900",
                   }}
@@ -209,81 +324,155 @@ function Navigation({ user, onLogout }) {
                 </span>
               )}
             </button>
+          )}
+          {user && user.role === "leader" && (
+            <span style={{ fontSize: "0.85rem", opacity: 0.8, color: "var(--accent-pink)", fontWeight: "600" }}>
+              👑 {user.name}
+            </span>
+          )}
+        </div>
 
-            {showDropdown && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: isMobile ? "auto" : "100%",
-                  top: isMobile ? "100%" : "auto",
-                  left: 0,
-                  width: "100%",
-                  background: "rgba(30, 30, 50, 0.98)",
-                  backdropFilter: "blur(20px)",
-                  border: "1px solid rgba(102, 126, 234, 0.2)",
-                  borderRadius: "12px",
-                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
-                  zIndex: 1100,
-                  maxHeight: "260px",
-                  overflowY: "auto",
-                  padding: "0.5rem",
-                  marginTop: isMobile ? "0.5rem" : "0.5rem",
-                  marginBottom: isMobile ? "0" : "0.5rem",
-                }}
-              >
+        {/* Mobile Alerts Dropdown */}
+        {showDropdown && (
+          <div
+            style={{
+              position: "absolute",
+              top: "60px",
+              left: "10px",
+              right: "10px",
+              background: "rgba(18, 18, 30, 0.98)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(108, 92, 231, 0.2)",
+              borderRadius: "12px",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+              zIndex: 1300,
+              maxHeight: "260px",
+              overflowY: "auto",
+              padding: "0.5rem",
+            }}
+          >
+            <div
+              style={{
+                padding: "0.5rem",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#c0c0c0",
+                fontSize: "0.85rem",
+                fontWeight: "700",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <span>Recent Alerts</span>
+              <span style={{ cursor: "pointer", color: "#6c5ce7" }} onClick={() => setShowDropdown(false)}>
+                ✕ Close
+              </span>
+            </div>
+            {notifications.length === 0 ? (
+              <div style={{ padding: "1rem", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
+                No notifications yet
+              </div>
+            ) : (
+              notifications.map((n) => (
                 <div
+                  key={n._id}
                   style={{
-                    padding: "0.5rem",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                    color: "#c0c0c0",
-                    fontSize: "0.85rem",
-                    fontWeight: "700",
-                    display: "flex",
-                    justifyContent: "space-between",
+                    padding: "0.75rem",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                    fontSize: "0.8rem",
+                    color: n.read ? "#aaa" : "#fff",
+                    background: n.read ? "transparent" : "rgba(108, 92, 231, 0.08)",
+                    borderRadius: "6px",
+                    marginBottom: "4px",
+                    lineHeight: "1.3",
+                    textAlign: "left"
                   }}
                 >
-                  <span>Recent Alerts</span>
-                  <span style={{ cursor: "pointer", color: "#667eea" }} onClick={() => setShowDropdown(false)}>
-                    ✕ Close
-                  </span>
-                </div>
-                {notifications.length === 0 ? (
-                  <div style={{ padding: "1rem", color: "#888", fontSize: "0.85rem", textAlign: "center" }}>
-                    No notifications yet
+                  <div>{n.message}</div>
+                  <div style={{ fontSize: "0.7rem", color: "#666", marginTop: "4px" }}>
+                    {new Date(n.createdAt).toLocaleDateString()} {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
-                ) : (
-                  notifications.map((n) => (
-                    <div
-                      key={n._id}
-                      style={{
-                        padding: "0.75rem",
-                        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-                        fontSize: "0.8rem",
-                        color: n.read ? "#aaa" : "#fff",
-                        background: n.read ? "transparent" : "rgba(102, 126, 234, 0.08)",
-                        borderRadius: "6px",
-                        marginBottom: "4px",
-                        lineHeight: "1.3",
-                        textAlign: "left"
-                      }}
-                    >
-                      <div>{n.message}</div>
-                      <div style={{ fontSize: "0.7rem", color: "#666", marginTop: "4px" }}>
-                        {new Date(n.createdAt).toLocaleDateString()} {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                </div>
+              ))
             )}
           </div>
         )}
-        <span className="user-info">👤 {user.name} ({user.role})</span>
-        <button className="logout-btn" onClick={onLogout}>
-          Logout
-        </button>
       </div>
-    </nav>
+
+      {/* Mobile Bottom Navigation Bar (For Leaders) */}
+      {user && user.role === "leader" && (
+        <div className="mobile-bottom-bar">
+          <Link to="/" className={`mobile-nav-link ${currentPath === "/" ? "active" : ""}`}>
+            <span className="mobile-nav-icon">📊</span>
+            <span>Expenses</span>
+          </Link>
+          <Link to="/admin" className={`mobile-nav-link ${currentPath === "/admin" ? "active" : ""}`}>
+            <span className="mobile-nav-icon">➕</span>
+            <span>Add</span>
+          </Link>
+          <Link to="/roommates" className={`mobile-nav-link ${currentPath === "/roommates" ? "active" : ""}`}>
+            <span className="mobile-nav-icon">👥</span>
+            <span>Roommates</span>
+          </Link>
+          <div 
+            onClick={onLogout} 
+            className="mobile-nav-link" 
+            style={{ cursor: "pointer" }}
+          >
+            <span className="mobile-nav-icon">🚪</span>
+            <span>Logout</span>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Bottom Navigation Bar (For Roommates / Non-leaders) */}
+      {user && user.role === "user" && (
+        <div className="mobile-bottom-bar">
+          <Link to="/" className={`mobile-nav-link ${currentPath === "/" ? "active" : ""}`}>
+            <span className="mobile-nav-icon">📊</span>
+            <span>Expenses</span>
+          </Link>
+          <Link to="/monthly-expenses" className={`mobile-nav-link ${currentPath === "/monthly-expenses" ? "active" : ""}`}>
+            <span className="mobile-nav-icon">🗓️</span>
+            <span>Monthly</span>
+          </Link>
+          <div 
+            onClick={toggleDropdown}
+            className={`mobile-nav-link ${showDropdown ? "active" : ""}`}
+            style={{ cursor: "pointer" }}
+          >
+            <span className="mobile-nav-icon">🔔</span>
+            <span style={{ position: "relative" }}>
+              Alerts
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-8px",
+                    right: "-12px",
+                    background: "#ff4757",
+                    color: "white",
+                    fontSize: "0.6rem",
+                    padding: "1px 4px",
+                    borderRadius: "8px",
+                    fontWeight: "900",
+                  }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </span>
+          </div>
+          <div 
+            onClick={onLogout} 
+            className="mobile-nav-link" 
+            style={{ cursor: "pointer", color: "var(--accent-pink)" }}
+          >
+            <span className="mobile-nav-icon">🚪</span>
+            <span>Logout</span>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -336,6 +525,7 @@ function App() {
         <Route path="/" element={<Expenses user={user} />} />
         <Route path="/admin" element={<ProtectedAdminRoute user={user} />} />
         <Route path="/roommates" element={<ProtectedRoommateRoute user={user} />} />
+        <Route path="/monthly-expenses" element={<MonthlyExpenses user={user} />} />
       </Routes>
     </BrowserRouter>
   );

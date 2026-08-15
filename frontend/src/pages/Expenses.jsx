@@ -127,45 +127,68 @@ function Expenses({ user }) {
             const leaderName = user.leaderName || "Leader";
             const leaderUpi = user.leaderUpi || "tkdarshankumar@oksbi";
             return (
-              <div
-                style={{
-                  background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
-                  color: "white",
-                  padding: "2rem",
-                  borderRadius: "12px",
-                  textAlign: "center",
-                  boxShadow: "0 4px 15px rgba(245, 87, 108, 0.3)",
-                  marginTop: "2rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                <p style={{ fontSize: "0.9rem", margin: "0", fontWeight: "600", opacity: "0.95" }}>
-                  💳 You Owe to {leaderName}
-                </p>
-                <div style={{ fontSize: "2.5rem", fontWeight: "900", margin: "0.8rem 0" }}>
-                  ₹{Number(myPendingAmount).toFixed(2)}
-                </div>
+              <>
                 <div
                   style={{
-                    background: "white",
-                    padding: "20px",
-                    borderRadius: "12px",
-                    marginTop: "25px",
+                    background: "linear-gradient(135deg, var(--accent-purple) 0%, #4834d4 100%)",
+                    color: "white",
+                    padding: "1.75rem",
+                    borderRadius: "20px",
+                    textAlign: "center",
+                    boxShadow: "0 10px 25px rgba(108, 92, 231, 0.25)",
+                    marginBottom: "1.5rem",
+                    position: "relative",
+                    overflow: "hidden"
+                  }}
+                >
+                  <div style={{
+                    position: "absolute",
+                    top: "-20px",
+                    right: "-20px",
+                    width: "100px",
+                    height: "100px",
+                    background: "rgba(255,255,255,0.05)",
+                    borderRadius: "50%"
+                  }} />
+                  <p style={{ fontSize: "0.8rem", margin: "0", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", opacity: 0.85 }}>
+                    💳 Total Amount Owed
+                  </p>
+                  <div style={{ fontSize: "2.25rem", fontWeight: "900", margin: "0.5rem 0" }}>
+                    ₹{Number(myPendingAmount).toFixed(2)}
+                  </div>
+                  <p style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+                    Payable to <strong>{leaderName}</strong>
+                  </p>
+                </div>
+
+                <div
+                  className="card"
+                  style={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    color: "black",
+                    color: "white",
+                    marginBottom: "1.5rem"
                   }}
                 >
-                  <h3>Scan QR to Pay</h3>
+                  <h3 style={{ marginBottom: "1.25rem", fontSize: "1rem", fontWeight: "700" }}>Scan QR to Pay</h3>
 
-                  <QRCode
-                    size={180}
-                    value={`upi://pay?pa=${leaderUpi}&pn=${encodeURIComponent(leaderName)}&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
-                  />
+                  <div style={{
+                    background: "white",
+                    padding: "12px",
+                    borderRadius: "14px",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                    display: "inline-block",
+                    lineHeight: 0
+                  }}>
+                    <QRCode
+                      size={160}
+                      value={`upi://pay?pa=${leaderUpi}&pn=${encodeURIComponent(leaderName)}&am=${Number(myPendingAmount).toFixed(2)}&cu=INR`}
+                    />
+                  </div>
 
-                  <p style={{ marginTop: "15px", fontWeight: "bold", wordBreak: "break-all" }}>
-                    UPI ID: {leaderUpi}
+                  <p style={{ marginTop: "1.25rem", fontWeight: "700", wordBreak: "break-all", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                    UPI: <span style={{ color: "#fff" }}>{leaderUpi}</span>
                   </p>
 
                   <a
@@ -178,34 +201,39 @@ function Expenses({ user }) {
                       }
                     }}
                     style={{
-                      display: "inline-block",
-                      marginTop: "10px",
-                      background: "linear-gradient(135deg, #4285F4 0%, #34A853 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: "1.25rem",
+                      background: "linear-gradient(135deg, #00b894 0%, #00cec9 100%)",
                       color: "white",
                       textDecoration: "none",
-                      padding: "10px 20px",
-                      borderRadius: "8px",
+                      padding: "0.8rem 1.5rem",
+                      borderRadius: "12px",
                       fontWeight: "700",
                       fontSize: "0.9rem",
                       textAlign: "center",
-                      boxShadow: "0 4px 15px rgba(66, 133, 244, 0.3)",
-                      width: "80%",
+                      boxShadow: "0 4px 15px rgba(0, 184, 148, 0.25)",
+                      width: "100%",
+                      minHeight: "44px"
                     }}
                   >
-                    📱 Pay via Google Pay / UPI App
+                    📱 Pay via UPI Application
                   </a>
 
                   <button
                     style={{
-                      marginTop: "15px",
-                      background: isPaymentPending ? "#777" : "#16a34a",
-                      color: "white",
-                      border: "none",
-                      padding: "10px 20px",
-                      borderRadius: "8px",
+                      marginTop: "0.75rem",
+                      background: isPaymentPending ? "rgba(255, 255, 255, 0.05)" : "var(--accent-gradient-pink)",
+                      color: isPaymentPending ? "var(--text-secondary)" : "white",
+                      border: isPaymentPending ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
+                      padding: "0.8rem 1.5rem",
+                      borderRadius: "12px",
                       cursor: isPaymentPending ? "not-allowed" : "pointer",
-                      width: "80%",
+                      width: "100%",
                       fontWeight: "700",
+                      boxShadow: isPaymentPending ? "none" : "0 4px 15px rgba(253, 121, 168, 0.25)",
+                      minHeight: "44px"
                     }}
                     onClick={async () => {
                       if (isPaymentPending) return;
@@ -227,7 +255,7 @@ function Expenses({ user }) {
                     {isPaymentPending ? "⏳ Verification Pending" : "I've Paid"}
                   </button>
                 </div>
-              </div>
+              </>
             );
           })()}
 
@@ -235,24 +263,18 @@ function Expenses({ user }) {
             const currentRoommate = roommates.find((r) => r.name && r.name.trim().toLowerCase() === (user.name || "").trim().toLowerCase());
             if (currentRoommate && currentRoommate.history && currentRoommate.history.length > 0) {
               return (
-                <div
-                  style={{
-                    background: "rgba(30, 30, 50, 0.8)",
-                    border: "1px solid rgba(102, 126, 234, 0.2)",
-                    padding: "1.5rem",
-                    borderRadius: "12px",
-                    marginBottom: "2rem",
-                  }}
-                >
-                  <h3 style={{ color: "#667eea", marginBottom: "0.75rem", fontSize: "1.1rem" }}>
+                <div className="card">
+                  <h3 style={{ color: "var(--accent-purple)", marginBottom: "0.75rem", fontSize: "1rem", fontWeight: "700" }}>
                     📋 Pending Amount Breakdown
                   </h3>
-                  <ul style={{ margin: "0", paddingLeft: "1.2rem", color: "#e0e0e0" }}>
+                  <ul style={{ margin: "0", paddingLeft: "1.2rem", color: "var(--text-secondary)" }}>
                     {currentRoommate.history.map((item, idx) => (
-                      <li key={item._id || idx} style={{ marginBottom: "0.4rem" }}>
-                        <span style={{ fontWeight: "600" }}>{item.title}</span>: +₹
-                        {Number(item.amount).toFixed(2)}{" "}
-                        <span style={{ fontSize: "0.8rem", color: "#999" }}>
+                      <li key={item._id || idx} style={{ marginBottom: "0.4rem", fontSize: "0.9rem" }}>
+                        <span style={{ fontWeight: "700" }}>{item.title}</span>: 
+                        <span style={{ color: item.amount < 0 ? "#ff7675" : "#00b894", marginLeft: "4px", fontWeight: "700" }}>
+                          {item.amount < 0 ? "" : "+"}₹{Number(item.amount).toFixed(2)}
+                        </span>{" "}
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "4px" }}>
                           ({new Date(item.date).toLocaleDateString()})
                         </span>
                       </li>
@@ -264,7 +286,7 @@ function Expenses({ user }) {
             return null;
           })()}
 
-          <h2 style={{ color: "#667eea", marginBottom: "1rem" }}>📋 Your Expenses</h2>
+          <h2 style={{ color: "var(--accent-purple)", marginBottom: "1rem" }}>📋 Your Expenses</h2>
           {loading ? (
             <div className="empty-state">
               <p>Loading expenses...</p>
@@ -282,8 +304,8 @@ function Expenses({ user }) {
                   style={
                     expense.isIndividual
                       ? {
-                          borderLeft: "4px solid #f5576c",
-                          background: "rgba(245, 87, 108, 0.05)",
+                          borderLeft: "4px solid var(--accent-pink)",
+                          background: "rgba(253, 121, 168, 0.05)",
                         }
                       : {}
                   }
@@ -291,7 +313,7 @@ function Expenses({ user }) {
                   <div>
                     <div
                       className="expense-title"
-                      style={expense.isIndividual ? { color: "#f5576c", fontWeight: "700" } : {}}
+                      style={expense.isIndividual ? { color: "var(--accent-pink)", fontWeight: "700" } : {}}
                     >
                       {expense.title}
                     </div>
@@ -308,13 +330,16 @@ function Expenses({ user }) {
                         style={{
                           marginRight: "0.5rem",
                           padding: "0.4rem 0.8rem",
-                          background: "rgba(255, 255, 255, 0.1)",
-                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.15)",
                           color: "#fff",
                           borderRadius: "8px",
                           cursor: "pointer",
-                          fontSize: "0.85rem",
-                          fontWeight: "600",
+                          fontSize: "0.8rem",
+                          fontWeight: "700",
+                          minHeight: "32px",
+                          width: "auto",
+                          boxShadow: "none"
                         }}
                       >
                         🧾 Bill
@@ -358,13 +383,16 @@ function Expenses({ user }) {
                         onClick={() => setActiveBill(expense.billImage)}
                         style={{
                           padding: "0.4rem 0.8rem",
-                          background: "rgba(255, 255, 255, 0.1)",
-                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.15)",
                           color: "#fff",
                           borderRadius: "8px",
                           cursor: "pointer",
-                          fontSize: "0.85rem",
-                          fontWeight: "600",
+                          fontSize: "0.8rem",
+                          fontWeight: "700",
+                          minHeight: "32px",
+                          width: "auto",
+                          boxShadow: "none"
                         }}
                       >
                         🧾 Bill
@@ -373,16 +401,7 @@ function Expenses({ user }) {
                     <div className="expense-amount">₹{expense.amount}</div>
                     <button
                       onClick={() => handleDeleteExpense(expense._id)}
-                      style={{
-                        padding: "0.4rem 0.8rem",
-                        background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                      }}
+                      className="delete-btn"
                     >
                       Delete
                     </button>
