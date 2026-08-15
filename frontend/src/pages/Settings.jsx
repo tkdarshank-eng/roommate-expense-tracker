@@ -226,7 +226,7 @@ function Settings({ user, onLogout }) {
             userSelect: "none"
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "1.1rem" }}>🚪 Session Options</h2>
+          <h2 style={{ margin: 0, fontSize: "1.1rem" }}>🚪 Logout</h2>
           <span style={{ color: "var(--accent-pink)", fontWeight: "bold", fontSize: "0.8rem" }}>
             {expandedSection === "logout" ? "▲ Hide" : "▼ Manage"}
           </span>
