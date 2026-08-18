@@ -13,7 +13,6 @@ function Login({ onLogin }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passphrase, setPassphrase] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [isLeaderRole, setIsLeaderRole] = useState(true);
   const [leaderUsername, setLeaderUsername] = useState("");
@@ -54,7 +53,7 @@ function Login({ onLogin }) {
   const handleRegisterLeader = async () => {
     setError("");
 
-    if (!id || !password || !confirmPassword || !passphrase) {
+    if (!id || !password || !confirmPassword) {
       setError("Please fill in all fields");
       return;
     }
@@ -69,13 +68,11 @@ function Login({ onLogin }) {
       await axios.post(`${API_BASE}/api/roommates/register-leader`, {
         username: id,
         password,
-        registrationPassphrase: passphrase,
       });
       alert("✅ Leader account created successfully! You can now log in.");
       setIsRegistering(false);
       setPassword("");
       setConfirmPassword("");
-      setPassphrase("");
       setError("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create leader account");
@@ -204,29 +201,17 @@ function Login({ onLogin }) {
         </div>
 
         {isRegistering && (
-          <>
-            <div className="form-group">
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label>Registration Passphrase</label>
-              <input
-                type="password"
-                placeholder="Enter registration passphrase"
-                value={passphrase}
-                onChange={(e) => setPassphrase(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleRegisterLeader()}
-                disabled={loading}
-              />
-            </div>
-          </>
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleRegisterLeader()}
+              disabled={loading}
+            />
+          </div>
         )}
 
         {error && (
